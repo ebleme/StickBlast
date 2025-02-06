@@ -1,5 +1,6 @@
 using System;
 using MyGrid.Code;
+using UnityEngine;
 
 namespace StickBlast
 {
@@ -9,9 +10,17 @@ namespace StickBlast
 
        public MyTile OnMyTile;
        
+       private Collider2D collider;
+       
        private void Start()
        {
            Moveable = GetComponent<Moveable>();
+           collider = GetComponent<Collider2D>();
+       }
+
+       public void SetActiveCollider(bool active)
+       {
+           collider.enabled = active;
        }
     }
 }

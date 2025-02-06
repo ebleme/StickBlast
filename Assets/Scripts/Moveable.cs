@@ -50,6 +50,7 @@ namespace StickBlast
             if (allowSetToGrid)
             {
                 SetPositionAll();
+                BaseGrid.Instance.CheckGrid();
             }
             else
             {
@@ -124,6 +125,7 @@ namespace StickBlast
             var target = hit.transform.position;
             target.z = 0.5f;
             transform.position = target;
+            myTile.SetActiveCollider(false);
         }
 
 
