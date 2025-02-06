@@ -1,5 +1,5 @@
 using System;
-using MyGrid.Code;
+using StickBlast.Grid;
 using UnityEngine;
 
 namespace StickBlast

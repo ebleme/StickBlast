@@ -1,12 +1,13 @@
 // maebleme2
 
 using System.Collections.Generic;
-using MyGrid.Code;
+using Ebleme.Utility;
+using StickBlast.Grid;
 using UnityEngine;
 
 namespace StickBlast
 {
-    public class BaseGrid : Ebleme.Utility.Singleton<BaseGrid>
+    public class BaseGrid : Singleton<BaseGrid>
     {
         [SerializeField]
         private GridManager gridManager;

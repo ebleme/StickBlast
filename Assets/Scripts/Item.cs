@@ -1,7 +1,7 @@
 // maebleme2
 
 using System.Collections.Generic;
-using MyGrid.Code;
+using StickBlast.Grid;
 using UnityEngine;
 
 namespace StickBlast
@@ -12,15 +12,11 @@ namespace StickBlast
         private Vector3 movingScale = Vector3.one;
         
         private List<MyTile> tiles = new List<MyTile>();
-        private GridManager gridManager;
-
-        public GridManager GridManager => gridManager;
 
         private Vector3 startScale;
         
         private void Start()
         {
-            gridManager = GetComponent<GridManager>();
             startScale = transform.localScale;
             
             SetTilesList();
