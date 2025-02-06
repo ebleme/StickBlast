@@ -1,17 +1,17 @@
+using System;
 using MyGrid.Code;
-using UnityEngine;
 
-public class MyTile : TileController
+namespace StickBlast
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class MyTile : TileController
     {
-        
-    }
+       public Moveable Moveable { get; private set; }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+       public MyTile OnMyTile;
+       
+       private void Start()
+       {
+           Moveable = GetComponent<Moveable>();
+       }
     }
 }
