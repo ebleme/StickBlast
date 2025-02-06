@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rectangle:
     prefab: {fileID: 8646673047519587377, guid: 2b17504f3ad86ba42815053306cc692f, type: 3}
-    distance: {x: 1.2, y: 1.2}
+    distance: {x: 3, y: 3}
   hexagon:
     prefab: {fileID: 0}
     distance: {x: 0, y: 0}

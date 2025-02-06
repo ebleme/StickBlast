@@ -11,13 +11,16 @@ namespace StickBlast
         [SerializeField]
         private GridManager gridManager;
 
+        [SerializeField]
+        private Vector2Int gridSize;
 
+        
         public void CheckGrid()
         {
             List<int> willDestroyRowIndexes = new List<int>();
             List<int> willDestroyColumnIndexes = new List<int>();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < gridSize.x; i++)
             {
                 if (IsFullRow(i))
                 {
@@ -34,7 +37,7 @@ namespace StickBlast
 
             foreach (var rowIndex in willDestroyRowIndexes)
             {
-                for (int colIndex = 0; colIndex < 10; colIndex++)
+                for (int colIndex = 0; colIndex < gridSize.x; colIndex++)
                 {
                     var tile = (MyTile)gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
                     if (tile.OnMyTile)
@@ -46,7 +49,7 @@ namespace StickBlast
 
             foreach (var colIndex in willDestroyColumnIndexes)
             {
-                for (int rowIndex = 0; rowIndex < 10; rowIndex++)
+                for (int rowIndex = 0; rowIndex < gridSize.y; rowIndex++)
                 {
                     var tile = (MyTile) gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
                     if (tile && tile.OnMyTile)
@@ -60,7 +63,7 @@ namespace StickBlast
 
         private bool IsFullRow(int row)
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < gridSize.y; i++)
             {
                 var tile = (MyTile)gridManager.GetTile(new Vector2Int(i, row));
 
@@ -75,7 +78,7 @@ namespace StickBlast
 
         private bool IsFullColumn(int column)
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < gridSize.x; i++)
             {
                 var tile = (MyTile)gridManager.GetTile(new Vector2Int(column, i));
 

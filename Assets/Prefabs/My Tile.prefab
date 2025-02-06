@@ -103,6 +103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   neighbours: []
   coordinate: {x: 0, y: 0}
+  OnMyTile: {fileID: 0}
 --- !u!61 &9151789436853612657
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -147,5 +148,5 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.024, y: 1.024}
+  m_Size: {x: 3, y: 3}
   m_EdgeRadius: 0
