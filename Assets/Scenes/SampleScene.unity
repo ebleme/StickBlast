@@ -4452,6 +4452,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridManager: {fileID: 1376169151}
   gridSize: {x: 6, y: 6}
+  verticalBack: {fileID: 0}
+  horizontalBack: {fileID: 0}
 --- !u!1 &1409900213 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4507199345464493923, guid: 2b17504f3ad86ba42815053306cc692f, type: 3}

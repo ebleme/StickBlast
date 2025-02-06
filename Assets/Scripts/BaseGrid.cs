@@ -1,5 +1,6 @@
 // maebleme2
 
+using System;
 using System.Collections.Generic;
 using Ebleme.Utility;
 using StickBlast.Grid;
@@ -15,7 +16,34 @@ namespace StickBlast
         [SerializeField]
         private Vector2Int gridSize;
 
-        
+        [SerializeField]
+        private GameObject verticalBack;
+
+        [SerializeField]
+        private GameObject horizontalBack;
+
+        private void Start()
+        {
+            // for (int i = gridManager.Tiles.Count - 1; i >= 0; i--)
+            // {
+            //     var tile = gridManager.Tiles[i];
+            //     // Your code here
+            //     var right = tile.GetNeighbour(Direction.Right);
+            //
+            //     if (right)
+            //     {
+            //         Instantiate(horizontalBack, right.transform.position, horizontalBack.transform.rotation);
+            //     }
+            //     
+            //     var up = tile.GetNeighbour(Direction.Up);
+            //
+            //     if (up)
+            //     {
+            //         Instantiate(verticalBack, up.transform.position, verticalBack.transform.rotation);
+            //     }
+            // }
+        }
+
         public void CheckGrid()
         {
             List<int> willDestroyRowIndexes = new List<int>();
@@ -60,8 +88,7 @@ namespace StickBlast
                 }
             }
         }
-
-
+        
         private bool IsFullRow(int row)
         {
             for (int i = 0; i < gridSize.y; i++)
