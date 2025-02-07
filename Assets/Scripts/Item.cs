@@ -145,12 +145,16 @@ namespace StickBlast
         
         public void SetPositionAll()
         {
+            List<BaseTile> baseTilesToHit = new List<BaseTile>();
+
             foreach (var tile in tiles)
             {
-                tile.SetPositionToHit();
+               baseTilesToHit.Add(tile.SetPositionToHit());
             }
             
             DrawLines();
+
+            BaseGrid.Instance.ReColorLines(baseTilesToHit, LineStatus.Active);
             // ReColorLines(LineStatus.Active);
         }
 

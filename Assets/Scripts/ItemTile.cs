@@ -41,7 +41,7 @@ namespace StickBlast
             transform.position = startPosition;
         }
 
-        public void SetPositionToHit()
+        public BaseTile SetPositionToHit()
         {
             var hit = Moveable.Hit();
            
@@ -54,6 +54,8 @@ namespace StickBlast
             transform.position = target;
            
             SetActiveCollider(false);
+
+            return baseTile;
         }
     }
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ebleme;
 using Ebleme.Utility;
 using StickBlast.Grid;
@@ -148,5 +149,20 @@ namespace StickBlast
 
             return true;
         }
+
+        public void ReColorLines(List<BaseTile> baseTilesToHit, LineStatus active)
+        {
+            foreach (var line in lines)
+            {
+                // Line içindeki TileController'ların baseTilesToHit içinde olup olmadığını kontrol et
+                if (baseTilesToHit.Any(tile => tile.coordinate == line.Tiles[0].coordinate) &&
+                    baseTilesToHit.Any(tile => tile.coordinate == line.Tiles[1].coordinate))
+                {
+                    // Eğer her iki tile da baseTilesToHit içinde bulunuyorsa, rengini değiştir
+                    line.Active();
+                }
+            }
+        }
+
     }
 }
