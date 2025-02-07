@@ -1,6 +1,8 @@
 // maebleme2
 
+using System;
 using System.Collections.Generic;
+using Ebleme.ColowSwapMaddness;
 using StickBlast.Grid;
 using UnityEngine;
 
@@ -17,14 +19,16 @@ namespace StickBlast
         [SerializeField]
         private Vector3 movingScale = Vector3.one;
         
-        private List<MyTile> tiles = new List<MyTile>();
+        private List<ItemTile> tiles = new List<ItemTile>();
         private List<Line> lines;
 
         private Vector3 startScale;
+        private Vector3 startPosition;
         
         private void Start()
         {
             startScale = transform.localScale;
+            startPosition = transform.position;
             
             SetTilesList();
             DrawLines();
@@ -32,6 +36,9 @@ namespace StickBlast
 
         private void DrawLines()
         {
+            foreach (Transform c in linesContent)
+                Destroy(c.gameObject);
+            
             lines = new List<Line>();
             for (int i = tiles.Count - 1; i >= 0; i--)
             {
@@ -41,19 +48,19 @@ namespace StickBlast
             
                 if (right && right.gameObject.activeSelf)
                 {
-                    DrawLine((MyTile)tile, (MyTile)right);
+                    DrawLine((ItemTile)tile, (ItemTile)right);
                 }
                 
                 var up = tile.GetNeighbour(Direction.Up);
             
                 if (up && up.gameObject.activeSelf)
                 {
-                    DrawLine((MyTile)tile, (MyTile)up);
+                    DrawLine((ItemTile)tile, (ItemTile)up);
                 }
             }
         }
         
-        private void DrawLine(MyTile tileA, MyTile tileB)
+        private void DrawLine(ItemTile tileA, ItemTile tileB)
         {
             if (tileA == null || tileB == null) return;
             
@@ -101,11 +108,15 @@ namespace StickBlast
             {
                 if (c.gameObject.activeSelf)
                 {
-                    var tile = c.GetComponent<MyTile>();
+                    var tile = c.GetComponent<ItemTile>();
                     if (tile == null) continue;
                     
                     tile.SetItem(this);
                     tiles.Add(tile);
+                }
+                else
+                {
+                    Destroy(c.gameObject);
                 }
             }
         }
@@ -113,13 +124,20 @@ namespace StickBlast
         /// <summary>
         /// Set all tiles position to their start position
         /// </summary>
-        public void BackToStartPositionAll()
+        public void ReleaseAll()
         {
             SetStartScale();
 
+            transform.position = startPosition;
+            
             foreach (var tile in tiles)
             {
                 tile.BackToStartPosition();
+            }
+
+            foreach (var line in lines)
+            {
+                line.BackToStartPosition();
             }
         }
         
@@ -128,6 +146,30 @@ namespace StickBlast
             foreach (var tile in tiles)
             {
                 tile.SetPositionToHit();
+            }
+            
+            DrawLines();
+            // ReColorLines(LineStatus.Active);
+        }
+
+        private void ReColorLines(LineStatus lineStat)
+        {
+            switch (lineStat)
+            {
+                case LineStatus.Passive:
+                    foreach (var line in lines)
+                        line.Passive();
+                    break;
+                case LineStatus.Hover:
+                    foreach (var line in lines)
+                        line.Hover();
+                    break;
+                case LineStatus.Active:
+                    foreach (var line in lines)
+                        line.Active();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(lineStat), lineStat, null);
             }
         }
 
@@ -145,7 +187,7 @@ namespace StickBlast
                 }
 
                 // base tile ın üstünde herhangi birşey var mı kontrolü
-                var baseTile = hit.transform.GetComponent<MyTile>();
+                var baseTile = hit.transform.GetComponent<BaseTile>();
                 if (baseTile.OnMyTile)
                 {
                     allowSetToGrid = false;
@@ -153,6 +195,11 @@ namespace StickBlast
                 }
             }
 
+            if (allowSetToGrid)
+                ReColorLines(LineStatus.Hover);
+            else
+                ReColorLines(LineStatus.Passive);
+            
             return allowSetToGrid;
         }
     }

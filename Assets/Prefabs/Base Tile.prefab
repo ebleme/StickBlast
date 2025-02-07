@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 948952814357262871}
   - component: {fileID: 5207368817958711277}
-  - component: {fileID: 8646673047519587377}
+  - component: {fileID: 7663973047251497141}
   - component: {fileID: 9151789436853612657}
   m_Layer: 6
-  m_Name: My Tile
+  m_Name: Base Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -89,7 +89,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8646673047519587377
+--- !u!114 &7663973047251497141
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -98,12 +98,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4507199345464493923}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 270d53b2ed4ae8940adbb2f5d2ae37a5, type: 3}
+  m_Script: {fileID: 11500000, guid: 53bb3c1c1ba94274b869ff84e1970df9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   neighbours: []
   coordinate: {x: 0, y: 0}
-  OnMyTile: {fileID: 0}
 --- !u!61 &9151789436853612657
 BoxCollider2D:
   m_ObjectHideFlags: 0

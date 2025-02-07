@@ -12,12 +12,12 @@ namespace StickBlast
         // private Vector3 startPosition;
 
         // private Item item;
-        private MyTile myTile;
+        private ItemTile itemTile;
         
         private void Start()
         {
             // startPosition = transform.position;
-            myTile = GetComponent<MyTile>();
+            itemTile = GetComponent<ItemTile>();
         }
 
         #region Pointers
@@ -25,9 +25,9 @@ namespace StickBlast
         public void OnPointerDown(PointerEventData eventData)
         {
             var target = Camera.main.ScreenToWorldPoint(eventData.position);
-            offset = myTile.Item.GetPosition() - target;
+            offset = itemTile.Item.GetPosition() - target;
             
-            myTile.Item.SetMovingScale();
+            itemTile.Item.SetMovingScale();
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -35,21 +35,21 @@ namespace StickBlast
             Vector2 target = Camera.main.ScreenToWorldPoint(eventData.position);
             target += offset;
 
-            myTile.Item.SetPosition(target);
+            itemTile.Item.SetPosition(target);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            var allowSetToGrid = myTile.Item.AllowSetToGrid();
+            var allowSetToGrid = itemTile.Item.AllowSetToGrid();
 
             if (allowSetToGrid)
             {
-                myTile.Item.SetPositionAll();
+                itemTile.Item.SetPositionAll();
                 BaseGrid.Instance.CheckGrid();
             }
             else
             {
-                myTile.Item.BackToStartPositionAll();
+                itemTile.Item.ReleaseAll();
             }
         }
 

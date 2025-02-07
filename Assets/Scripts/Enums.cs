@@ -22,4 +22,11 @@ namespace StickBlast
         // flatI ve 2 yukarıya II
         //.....
     }
+
+    public enum LineStatus
+    {
+        Passive,
+        Hover,
+        Active,
+    }
 }

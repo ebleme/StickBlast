@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ef0cd849529244b4a8dd4512eca55c50, type: 3}
-  m_Name: MyTileSettings
+  m_Name: ItemTileSettings
   m_EditorClassIdentifier: 
   rectangle:
-    prefab: {fileID: 7663973047251497141, guid: a5f6adf86a0d5484c850a3ceba2867a5, type: 3}
+    prefab: {fileID: 7169452913049119724, guid: 3d1817cd372440441a5e388ee1721d46, type: 3}
     distance: {x: 3, y: 3}
   hexagon:
     prefab: {fileID: 0}

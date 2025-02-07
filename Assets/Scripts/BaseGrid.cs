@@ -38,19 +38,19 @@ namespace StickBlast
 
                 if (right)
                 {
-                    DrawLine((MyTile)tile, (MyTile)right);
+                    DrawLine((BaseTile)tile, (BaseTile)right);
                 }
 
                 var up = tile.GetNeighbour(Direction.Up);
 
                 if (up)
                 {
-                    DrawLine((MyTile)tile, (MyTile)up);
+                    DrawLine((BaseTile)tile, (BaseTile)up);
                 }
             }
         }
 
-        private void DrawLine(MyTile tileA, MyTile tileB)
+        private void DrawLine(BaseTile tileA, BaseTile tileB)
         {
             if (tileA == null || tileB == null) return;
             
@@ -68,6 +68,8 @@ namespace StickBlast
             Vector3 scale = line.transform.localScale;
             scale.x = distance / line.GetComponent<SpriteRenderer>().bounds.size.x;
             line.transform.localScale = scale;
+            
+            line.SetTiles(tileA, tileB);
             
             lines.Add(line);
         }
@@ -96,7 +98,7 @@ namespace StickBlast
             {
                 for (int colIndex = 0; colIndex < GameConfigs.Instance.BaseGridSize.x; colIndex++)
                 {
-                    var tile = (MyTile)gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
+                    var tile = (BaseTile)gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
                     if (tile.OnMyTile)
                     {
                         Destroy(tile.OnMyTile.gameObject);
@@ -108,7 +110,7 @@ namespace StickBlast
             {
                 for (int rowIndex = 0; rowIndex < GameConfigs.Instance.BaseGridSize.y; rowIndex++)
                 {
-                    var tile = (MyTile) gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
+                    var tile = (BaseTile) gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
                     if (tile && tile.OnMyTile)
                     {
                         Destroy(tile.OnMyTile.gameObject);
@@ -121,7 +123,7 @@ namespace StickBlast
         {
             for (int i = 0; i < GameConfigs.Instance.BaseGridSize.y; i++)
             {
-                var tile = (MyTile)gridManager.GetTile(new Vector2Int(i, row));
+                var tile = (BaseTile)gridManager.GetTile(new Vector2Int(i, row));
 
                 if (!tile.OnMyTile)
                 {
@@ -136,7 +138,7 @@ namespace StickBlast
         {
             for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x; i++)
             {
-                var tile = (MyTile)gridManager.GetTile(new Vector2Int(column, i));
+                var tile = (BaseTile)gridManager.GetTile(new Vector2Int(column, i));
 
                 if (!tile.OnMyTile)
                 {

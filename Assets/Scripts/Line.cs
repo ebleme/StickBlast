@@ -2,15 +2,18 @@
 
 using System;
 using Ebleme.ColowSwapMaddness;
+using StickBlast.Grid;
 using UnityEngine;
 
 namespace StickBlast
 {
     public class Line:MonoBehaviour
     {
-        public MyTile[] Tiles { get; private set; }
+        public TileController[] Tiles { get; private set; }
         
         private SpriteRenderer spriteRenderer;
+
+        private Vector3 startPosition;
 
         private void Awake()
         {
@@ -21,9 +24,15 @@ namespace StickBlast
         private void Start()
         {
             spriteRenderer.color = GameConfigs.Instance.LinePassiveColor;
+            startPosition = transform.position;
+        }
+        
+        public void BackToStartPosition()
+        {
+            transform.position = startPosition;
         }
 
-        public void SetTiles(params MyTile[] tiles)
+        public void SetTiles(params TileController[] tiles)
         {
             Tiles = tiles;
         }
