@@ -52,9 +52,52 @@ namespace StickBlast.Grid
             var tiles = new List<TileController>();
             var tilePosition = Vector3.zero;
 
+
+            for (int y = 0; y < size.y; y++)
+            {
+                tilePosition = GetTileVerticalPosition(tilePosition, y, axisType, gridType, setting);
+
+                for (int x = 0; x < size.x; x++)
+                {
+                    var coordinate = new Vector2Int(x, y);
+                    if (!CanSpawn(gridType, coordinate))
+                        continue;
+
+                    tilePosition.x = x * GetDistance(gridType, setting).x;
+
+                    TileController tile = null;
+                    if (createAsPrefab)
+                    {
+#if UNITY_EDITOR
+                        var prefabGameObject = prefab.gameObject;
+                        var tileGameObject = PrefabUtility.InstantiatePrefab(prefabGameObject) as GameObject;
+                        if (tileGameObject != null) tile = tileGameObject.GetComponent<TileController>();
+                        if (tile != null) tile.transform.position = tilePosition;
+#endif
+                    }
+                    else
+                    {
+                        tile = Object.Instantiate(prefab, tilePosition, Quaternion.identity);
+                    }
+
+                    if (tile == null) continue;
+                    tile.transform.name = $"Tile [{x},{y}]";
+                    tile.coordinate = coordinate;
+                    tiles.Add(tile);
+                }
+            }
+
+            for (int i = tiles.Count - 1; i >= 0; i--)
+            {
+                tiles[i].transform.SetParent(gridManager.transform);
+            }
+
+            /*
+             * 
+             
             for (int vertical = 0; vertical < size.y; vertical++)
             {
-                tilePosition = GetTilePosition(tilePosition, vertical, axisType, gridType, setting);
+                tilePosition = GetTileVerticalPosition(tilePosition, vertical, axisType, gridType, setting);
 
                 for (int horizontal = 0; horizontal < size.x; horizontal++)
                 {
@@ -86,6 +129,7 @@ namespace StickBlast.Grid
                     tiles.Add(tile);
                 }
             }
+            */
 
             gridManager.SetTiles(tiles);
             SetNeighbor(gridManager, gridType);
@@ -112,7 +156,7 @@ namespace StickBlast.Grid
             };
         }
 
-        private Vector3 GetTilePosition(Vector3 position, int count, AxisType type, GridType gridType,
+        private Vector3 GetTileVerticalPosition(Vector3 position, int count, AxisType type, GridType gridType,
             TileSetting setting)
         {
             var axis = count * GetDistance(gridType, setting).y;
