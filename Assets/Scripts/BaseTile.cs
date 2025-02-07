@@ -9,7 +9,7 @@ namespace StickBlast
     {
         public int Count { get; set; }
 
-        public ItemTile OnMyTile { get; set; }
+        // public ItemTile OnMyTile { get; set; }
 
         private Collider2D collider2d;
 
@@ -21,7 +21,6 @@ namespace StickBlast
         public void SetOnTile()
         {
             Count++;
-            
         }
     }
 }

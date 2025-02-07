@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using Ebleme.ColowSwapMaddness;
+using Ebleme;
 using Ebleme.Utility;
 using StickBlast.Grid;
 using UnityEngine;
@@ -99,9 +99,9 @@ namespace StickBlast
                 for (int colIndex = 0; colIndex < GameConfigs.Instance.BaseGridSize.x; colIndex++)
                 {
                     var tile = (BaseTile)gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
-                    if (tile.OnMyTile)
+                    if (tile.Count > 0)
                     {
-                        Destroy(tile.OnMyTile.gameObject);
+                        tile.Count = 0;
                     }
                 }
             }
@@ -111,9 +111,9 @@ namespace StickBlast
                 for (int rowIndex = 0; rowIndex < GameConfigs.Instance.BaseGridSize.y; rowIndex++)
                 {
                     var tile = (BaseTile) gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
-                    if (tile && tile.OnMyTile)
+                    if (tile && tile.Count > 0)
                     {
-                        Destroy(tile.OnMyTile.gameObject);
+                        tile.Count = 0;
                     }
                 }
             }
@@ -125,7 +125,7 @@ namespace StickBlast
             {
                 var tile = (BaseTile)gridManager.GetTile(new Vector2Int(i, row));
 
-                if (!tile.OnMyTile)
+                if (tile.Count == 0)
                 {
                     return false;
                 }
@@ -140,7 +140,7 @@ namespace StickBlast
             {
                 var tile = (BaseTile)gridManager.GetTile(new Vector2Int(column, i));
 
-                if (!tile.OnMyTile)
+                if (tile.Count == 0)
                 {
                     return false;
                 }

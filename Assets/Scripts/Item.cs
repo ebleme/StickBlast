@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using Ebleme.ColowSwapMaddness;
 using StickBlast.Grid;
 using UnityEngine;
 
@@ -10,6 +9,9 @@ namespace StickBlast
 {
     public class Item : MonoBehaviour
     {
+        [SerializeField]
+        private List<Line> lines;
+
         [SerializeField]
         private Line linePrefab;
 
@@ -20,7 +22,7 @@ namespace StickBlast
         private Vector3 movingScale = Vector3.one;
         
         private List<ItemTile> tiles = new List<ItemTile>();
-        private List<Line> lines;
+        
 
         private Vector3 startScale;
         private Vector3 startPosition;
@@ -177,6 +179,8 @@ namespace StickBlast
         {
             var allowSetToGrid = true;
 
+            int hitCount = 0;
+            
             foreach (var tile in tiles)
             {
                 var hit = tile.Moveable.Hit();
@@ -186,13 +190,22 @@ namespace StickBlast
                     break;
                 }
 
+
                 // base tile ın üstünde herhangi birşey var mı kontrolü
                 var baseTile = hit.transform.GetComponent<BaseTile>();
-                if (baseTile.OnMyTile)
+                if (tiles.Count == 2 && baseTile.Count > 0)
                 {
                     allowSetToGrid = false;
                     break;
                 }
+                
+                if (tiles.Count > 2 && baseTile.Count > 1)
+                {
+                    allowSetToGrid = false;
+                    break;
+                }
+                
+                hitCount++;
             }
 
             if (allowSetToGrid)

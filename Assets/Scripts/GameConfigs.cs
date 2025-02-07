@@ -1,7 +1,7 @@
 using Ebleme.Utility;
 using UnityEngine;
 
-namespace Ebleme.ColowSwapMaddness
+namespace Ebleme
 {
     [CreateAssetMenu(fileName = "GameConfigs", menuName = "Ebleme/GameConfigs", order = 0)]
     public class GameConfigs : SingletonScriptableObject<GameConfigs>
