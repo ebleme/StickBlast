@@ -26,10 +26,10 @@ namespace StickBlast.Grid
         Down,
         Right,
         Left,
-        UpRight,
-        UpLeft,
-        DownRight,
-        DownLeft
+        // UpRight,
+        // UpLeft,
+        // DownRight,
+        // DownLeft
     }
 
 

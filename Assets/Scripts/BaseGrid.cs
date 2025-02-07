@@ -22,11 +22,11 @@ namespace StickBlast
         private Transform linesContent;
 
         private List<Line> lines;
-        private List<BaseTile> occupiedTiles;
+        private List<BaseTileOccupation> occupiedTiles;
 
         private void Start()
         {
-            occupiedTiles = new List<BaseTile>();
+            occupiedTiles = new List<BaseTileOccupation>();
             DrawLines();
         }
 
@@ -216,21 +216,55 @@ namespace StickBlast
 
         public void AddOccupiedTile(BaseTile tile)
         {
-            if (!occupiedTiles.Contains(tile))
+            if (!IsOccupationExist(tile))
             {
-                occupiedTiles.Add(tile);
+                occupiedTiles.Add(new BaseTileOccupation(tile, tile.Neighbours.Count));
             }
+            else
+            {
+                var occupation = GetOccupation(tile);
+                occupation.ConnectionCount++;
+            }
+        }
+
+        public bool IsOccupationExist(BaseTile tile)
+        {
+            var occupiedTile = GetOccupation(tile);
+
+            return occupiedTile != null;
         }
 
         public bool IsOccupied(BaseTile tile)
         {
-            return occupiedTiles.Contains(tile);
+            var occupiedTile = GetOccupation(tile);
+
+            if (occupiedTile == null || occupiedTile.ConnectionCount < GameConfigs.Instance.BaseGridMaxOccupation)
+                return false;
+
+            return true;
+        }
+        
+        public int GetOccupatableCount(BaseTile tile)
+        {
+            var occupiedTile = GetOccupation(tile);
+
+            if (occupiedTile == null)
+                return GameConfigs.Instance.BaseGridMaxOccupation;
+
+            return GameConfigs.Instance.BaseGridMaxOccupation - occupiedTile.ConnectionCount;
+        }
+
+        private BaseTileOccupation GetOccupation(BaseTile tile)
+        {
+            return occupiedTiles.SingleOrDefault(p => p.BaseTile == tile);
         }
 
         public void RemoveOccupied(BaseTile tile)
         {
-            if (IsOccupied(tile))
-                occupiedTiles.Remove(tile);
+            var occupiedTile = GetOccupation(tile);
+
+            if (occupiedTile != null)
+                occupiedTiles.Remove(occupiedTile);
         }
     }
 }

@@ -7,9 +7,11 @@ namespace Ebleme
     public class GameConfigs : SingletonScriptableObject<GameConfigs>
     {
         [SerializeField]
+        private int baseGridMaxOccupation;
+
+        [SerializeField]
         private Vector2Int baseGridSize;
 
-        
         [SerializeField]
         private Color linePassiveColor;
         
@@ -29,6 +31,8 @@ namespace Ebleme
         public Color ActiveColor => activeColor;
         public Color HoverColor => hoverColor;
         public Color ItemStillColor => itemStillColor;
-        
+
+        public int BaseGridMaxOccupation => baseGridMaxOccupation;
+
     }
 }

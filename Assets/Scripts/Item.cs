@@ -204,7 +204,7 @@ namespace StickBlast
 
                 // base tile ın üstünde herhangi birşey var mı kontrolü
                 var baseTile = hit.transform.GetComponent<BaseTile>();
-                if (BaseGrid.Instance.IsOccupied(baseTile))
+                if (BaseGrid.Instance.GetOccupatableCount(baseTile) <= 0)
                 {
                     allowSetToGrid = false;
                     break;
