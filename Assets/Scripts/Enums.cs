@@ -23,8 +23,9 @@ namespace StickBlast
         //.....
     }
 
-    public enum LineStatus
+    public enum ColorTypes
     {
+        ItemStill,
         Passive,
         Hover,
         Active,

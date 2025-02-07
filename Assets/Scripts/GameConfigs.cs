@@ -14,17 +14,21 @@ namespace Ebleme
         private Color linePassiveColor;
         
         [SerializeField]
-        private Color lineHoverColor; 
+        private Color hoverColor; 
         
         [SerializeField]
-        private Color lineActiveColor;
+        private Color activeColor;
 
-
+        [Header("Item")]
+        [SerializeField]
+        private Color itemStillColor;
+    
         public Vector2Int BaseGridSize => baseGridSize;
         
         public Color LinePassiveColor => linePassiveColor;
-        public Color LineActiveColor => lineActiveColor;
-        public Color LineHoverColor => lineHoverColor;
+        public Color ActiveColor => activeColor;
+        public Color HoverColor => hoverColor;
+        public Color ItemStillColor => itemStillColor;
         
     }
 }

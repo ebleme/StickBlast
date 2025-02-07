@@ -44,7 +44,7 @@ namespace StickBlast
 
             if (allowSetToGrid)
             {
-                itemTile.Item.SetPositionAll();
+                itemTile.Item.AssingItemTilesToGridTiles();
                 BaseGrid.Instance.CheckGrid();
             }
             else

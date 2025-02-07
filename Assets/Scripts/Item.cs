@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using StickBlast.Grid;
 using UnityEngine;
 
@@ -17,55 +18,80 @@ namespace StickBlast
 
         [SerializeField]
         private Transform linesContent;
-        
+
         [SerializeField]
         private Vector3 movingScale = Vector3.one;
-        
+
         private List<ItemTile> tiles = new List<ItemTile>();
-        
+
 
         private Vector3 startScale;
         private Vector3 startPosition;
-        
+
         private void Start()
         {
             startScale = transform.localScale;
             startPosition = transform.position;
-            
+
             SetTilesList();
             DrawLines();
+            Recolor(ColorTypes.ItemStill);
+        }
+
+
+        private void Recolor(ColorTypes colorType)
+        {
+            RecolorItems(colorType);
+            RecolorLines(colorType);
+        }
+
+
+        private void RecolorItems(ColorTypes colorType)
+        {
+            foreach (var tile in tiles)
+            {
+                tile.ReColor(colorType);
+            }
+        }
+
+        private void RecolorLines(ColorTypes colorType)
+        {
+            foreach (var line in lines)
+            {
+                line.ReColor(colorType);
+            }
         }
 
         private void DrawLines()
         {
             foreach (Transform c in linesContent)
                 Destroy(c.gameObject);
-            
+
             lines = new List<Line>();
             for (int i = tiles.Count - 1; i >= 0; i--)
             {
                 var tile = tiles[i];
                 // Your code here
                 var right = tile.GetNeighbour(Direction.Right);
-            
+
                 if (right && right.gameObject.activeSelf)
                 {
                     DrawLine((ItemTile)tile, (ItemTile)right);
                 }
-                
+
                 var up = tile.GetNeighbour(Direction.Up);
-            
+
                 if (up && up.gameObject.activeSelf)
                 {
                     DrawLine((ItemTile)tile, (ItemTile)up);
                 }
             }
         }
-        
+
         private void DrawLine(ItemTile tileA, ItemTile tileB)
         {
             if (tileA == null || tileB == null) return;
-            
+
             Transform pointA = tileA.transform, pointB = tileB.transform;
 
             float distance = Vector2.Distance(pointA.position, pointB.position);
@@ -80,6 +106,9 @@ namespace StickBlast
             Vector3 scale = line.transform.localScale;
             scale.x = distance / line.GetComponent<SpriteRenderer>().bounds.size.x;
             line.transform.localScale = scale;
+
+            line.SetConnectedTiles(tileA, tileB);
+
             
             lines.Add(line);
         }
@@ -93,17 +122,17 @@ namespace StickBlast
         {
             transform.position = position;
         }
-        
+
         public void SetMovingScale()
         {
             transform.localScale = movingScale;
         }
-        
+
         public void SetStartScale()
         {
             transform.localScale = startScale;
         }
-        
+
         private void SetTilesList()
         {
             foreach (Transform c in transform)
@@ -112,7 +141,7 @@ namespace StickBlast
                 {
                     var tile = c.GetComponent<ItemTile>();
                     if (tile == null) continue;
-                    
+
                     tile.SetItem(this);
                     tiles.Add(tile);
                 }
@@ -131,7 +160,7 @@ namespace StickBlast
             SetStartScale();
 
             transform.position = startPosition;
-            
+
             foreach (var tile in tiles)
             {
                 tile.BackToStartPosition();
@@ -142,49 +171,28 @@ namespace StickBlast
                 line.BackToStartPosition();
             }
         }
-        
-        public void SetPositionAll()
-        {
-            List<BaseTile> baseTilesToHit = new List<BaseTile>();
 
-            foreach (var tile in tiles)
-            {
-               baseTilesToHit.Add(tile.SetPositionToHit());
-            }
+        public void AssingItemTilesToGridTiles()
+        {
+            List<BaseTile> baseTilesToHit = tiles.Select(tile => tile.HitBaseTile).ToList();
             
-            DrawLines();
+            BaseGrid.Instance.PutItemToGrid(baseTilesToHit, tiles);
 
-            BaseGrid.Instance.ReColorLines(baseTilesToHit, LineStatus.Active);
-            // ReColorLines(LineStatus.Active);
+            Destroy(gameObject);
         }
 
-        private void ReColorLines(LineStatus lineStat)
-        {
-            switch (lineStat)
-            {
-                case LineStatus.Passive:
-                    foreach (var line in lines)
-                        line.Passive();
-                    break;
-                case LineStatus.Hover:
-                    foreach (var line in lines)
-                        line.Hover();
-                    break;
-                case LineStatus.Active:
-                    foreach (var line in lines)
-                        line.Active();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(lineStat), lineStat, null);
-            }
-        }
+        // private void ReColorLines(ColorTypes lineStat)
+        // {
+        //     foreach (var line in lines)
+        //         line.ReColor(lineStat);
+        // }
 
         public bool AllowSetToGrid()
         {
             var allowSetToGrid = true;
 
             int hitCount = 0;
-            
+
             foreach (var tile in tiles)
             {
                 var hit = tile.Moveable.Hit();
@@ -194,29 +202,22 @@ namespace StickBlast
                     break;
                 }
 
-
                 // base tile ın üstünde herhangi birşey var mı kontrolü
                 var baseTile = hit.transform.GetComponent<BaseTile>();
-                if (tiles.Count == 2 && baseTile.Count > 0)
+                if (BaseGrid.Instance.IsOccupied(baseTile))
                 {
                     allowSetToGrid = false;
                     break;
                 }
-                
-                if (tiles.Count > 2 && baseTile.Count > 1)
-                {
-                    allowSetToGrid = false;
-                    break;
-                }
-                
+
                 hitCount++;
             }
 
             if (allowSetToGrid)
-                ReColorLines(LineStatus.Hover);
+                Recolor(ColorTypes.Hover);
             else
-                ReColorLines(LineStatus.Passive);
-            
+                Recolor(ColorTypes.ItemStill);
+
             return allowSetToGrid;
         }
     }

@@ -1,6 +1,7 @@
 // maebleme2
 
 using System;
+using System.Linq;
 using Ebleme;
 using StickBlast.Grid;
 using UnityEngine;
@@ -9,21 +10,42 @@ namespace StickBlast
 {
     public class Line:MonoBehaviour
     {
-        public TileController[] Tiles { get; private set; }
+        public TileController[] ConnectedTiles { get; private set; }
+        
         
         private SpriteRenderer spriteRenderer;
 
         private Vector3 startPosition;
 
+
+        public bool Compare(params TileController[] connectedTiles)
+        {
+            if (connectedTiles.Length != ConnectedTiles.Length) return false;
+            
+            for (int i = 0; i < ConnectedTiles.Length; i++)
+            {
+                if (ConnectedTiles[i].coordinate != connectedTiles[i].coordinate)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        
+        public Vector2Int[] GetCoordinates()
+        {
+            return ConnectedTiles.Select(p => p.coordinate).ToArray();
+        }
+
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
+            spriteRenderer.color = GameConfigs.Instance.LinePassiveColor;
         }
-
 
         private void Start()
         {
-            spriteRenderer.color = GameConfigs.Instance.LinePassiveColor;
             startPosition = transform.position;
         }
         
@@ -32,25 +54,30 @@ namespace StickBlast
             transform.position = startPosition;
         }
 
-        public void SetTiles(params TileController[] tiles)
+        public void SetConnectedTiles(params TileController[] tiles)
         {
-            Tiles = tiles;
+            ConnectedTiles = tiles;
         }
 
-        public void Hover()
+        public void ReColor(ColorTypes status)
         {
-            spriteRenderer.color = GameConfigs.Instance.LineHoverColor;
-
-        }
-        
-        public void Active()
-        {
-            spriteRenderer.color = GameConfigs.Instance.LineActiveColor;
-        }
-        
-        public void Passive()
-        {
-            spriteRenderer.color = GameConfigs.Instance.LinePassiveColor;
+            switch (status)
+            {
+                case ColorTypes.ItemStill:
+                    spriteRenderer.color = GameConfigs.Instance.ItemStillColor;
+                    break;
+                case ColorTypes.Passive:
+                    spriteRenderer.color = GameConfigs.Instance.LinePassiveColor;
+                    break;
+                case ColorTypes.Hover:
+                    spriteRenderer.color = GameConfigs.Instance.HoverColor;
+                    break;
+                case ColorTypes.Active:
+                    spriteRenderer.color = GameConfigs.Instance.ActiveColor;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

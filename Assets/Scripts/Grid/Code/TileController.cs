@@ -15,6 +15,8 @@ namespace StickBlast.Grid
 	{
 		[SerializeField] private List<TileData> neighbours;
 
+		public List<TileData> Neighbours => neighbours;
+
 		public Vector2Int coordinate;
 
 		public TileController GetNeighbour(Direction direction)
