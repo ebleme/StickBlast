@@ -24,25 +24,28 @@ namespace StickBlast
 
         private void Start()
         {
+            DrawLines();
+        }
+
+        private void DrawLines()
+        {
             lines = new List<Line>();
             for (int i = gridManager.Tiles.Count - 1; i >= 0; i--)
             {
                 var tile = gridManager.Tiles[i];
                 // Your code here
                 var right = tile.GetNeighbour(Direction.Right);
-            
+
                 if (right)
                 {
                     DrawLine((MyTile)tile, (MyTile)right);
-                    
                 }
-                
+
                 var up = tile.GetNeighbour(Direction.Up);
-            
+
                 if (up)
                 {
                     DrawLine((MyTile)tile, (MyTile)up);
-
                 }
             }
         }

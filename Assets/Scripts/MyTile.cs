@@ -44,7 +44,7 @@ namespace StickBlast
            var baseTile = hit.transform.GetComponent<MyTile>();
            baseTile.OnMyTile = this;
            var target = hit.transform.position;
-           target.z = 0.5f;
+           target.z = 0f;
            transform.position = target;
            
            SetActiveCollider(false);
