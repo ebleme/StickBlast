@@ -12,25 +12,27 @@ namespace StickBlast
     public class Item : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         [SerializeField]
-        private List<ItemLine> lines;
+        private ItemTypes itemType;
+        
+        [SerializeField]
+        private Vector3 movingScale = Vector3.one;
 
+        [Header("Line")]
         [SerializeField]
         private ItemLine linePrefab;
 
         [SerializeField]
         private Transform linesContent;
-
+        
         [SerializeField]
-        private Vector3 movingScale = Vector3.one;
-
-        private List<ItemTile> tiles = new List<ItemTile>();
+        private List<ItemLine> lines;
 
 
         private Vector3 startScale;
         private Vector3 startPosition;
         private Vector2 offset;
 
-        private List<BaseTile> baseTilesHit;
+        private List<ItemTile> tiles = new List<ItemTile>();
         private List<BaseLine> baseLinesHit;
 
         private bool canPlaced;
@@ -246,14 +248,6 @@ namespace StickBlast
                 }
             }
 
-            // foreach (var hit in hits)
-            // {
-            //     if (hit && hit.transform != null)
-            //     {
-            //         list.Add(hit.transform.GetComponent<BaseLine>());
-            //     }
-            // }
-
             return list;
         }
 
@@ -298,7 +292,9 @@ namespace StickBlast
         {
             if (canPlaced)
             {
-                AssingItemTilesToGridTiles();
+                BaseGrid.Instance.PutItemToGrid(baseLinesHit);
+
+                Destroy(gameObject);                
                 BaseGrid.Instance.CheckGrid();
             }
             else
@@ -307,15 +303,6 @@ namespace StickBlast
             }
             
             baseLinesHit = null;
-
-        }
-
-        public void AssingItemTilesToGridTiles()
-        {
-            // BaseGrid.Instance.PutItemToGrid(baseTilesHit, baseLinesHit);
-            BaseGrid.Instance.PutItemToGrid(baseLinesHit);
-
-            Destroy(gameObject);
         }
 
         #endregion

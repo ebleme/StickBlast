@@ -1,18 +1,12 @@
-using Ebleme.Utility;
+// maebleme2
+
 using UnityEngine;
 
-namespace Ebleme
+namespace ScriptableObjects
 {
-    [CreateAssetMenu(fileName = "GameConfigs", menuName = "Ebleme/GameConfigs", order = 0)]
-    public class GameConfigs : SingletonScriptableObject<GameConfigs>
+    [CreateAssetMenu(fileName = "Level", menuName = "Ebleme/Level", order = 0)]
+    public class LevelPreset : ScriptableObject
     {
-        [SerializeField]
-        private LayerMask baseTileLayer;
-
-        [SerializeField]
-        private LayerMask baseLineLayer;
-        
-        
         [SerializeField]
         private Vector2Int baseGridSize;
 
@@ -35,9 +29,5 @@ namespace Ebleme
         public Color ActiveColor => activeColor;
         public Color HoverColor => hoverColor;
         public Color ItemStillColor => itemStillColor;
-        
-        public LayerMask BaseTileLayer => baseTileLayer;
-        public LayerMask BaseLineLayer => baseLineLayer;
-
     }
 }
