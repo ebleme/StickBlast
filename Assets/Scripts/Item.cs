@@ -11,10 +11,10 @@ namespace StickBlast
     public class Item : MonoBehaviour
     {
         [SerializeField]
-        private List<Line> lines;
+        private List<ItemLine> lines;
 
         [SerializeField]
-        private Line linePrefab;
+        private ItemLine linePrefab;
 
         [SerializeField]
         private Transform linesContent;
@@ -67,7 +67,7 @@ namespace StickBlast
             foreach (Transform c in linesContent)
                 Destroy(c.gameObject);
 
-            lines = new List<Line>();
+            lines = new List<ItemLine>();
             for (int i = tiles.Count - 1; i >= 0; i--)
             {
                 var tile = tiles[i];
@@ -109,7 +109,7 @@ namespace StickBlast
 
             line.SetConnectedTiles(tileA, tileB);
 
-            
+
             lines.Add(line);
         }
 
@@ -175,7 +175,7 @@ namespace StickBlast
         public void AssingItemTilesToGridTiles()
         {
             List<BaseTile> baseTilesToHit = tiles.Select(tile => tile.HitBaseTile).ToList();
-            
+
             BaseGrid.Instance.PutItemToGrid(baseTilesToHit, tiles);
 
             Destroy(gameObject);
@@ -191,34 +191,68 @@ namespace StickBlast
         {
             var allowSetToGrid = true;
 
-            int hitCount = 0;
+            // int hitCount = 0;
 
-            foreach (var tile in tiles)
+
+            var lineHits = GetBaseLineHits();
+            foreach (var baseLine in lineHits)
             {
-                var hit = tile.Moveable.Hit();
-                if (!hit)
+                if (baseLine.IsOccupied)
                 {
                     allowSetToGrid = false;
                     break;
                 }
-
-                // base tile ın üstünde herhangi birşey var mı kontrolü
-                var baseTile = hit.transform.GetComponent<BaseTile>();
-                if (BaseGrid.Instance.GetOccupatableCount(baseTile) <= 0)
-                {
-                    allowSetToGrid = false;
-                    break;
-                }
-
-                hitCount++;
             }
 
+            // foreach (var tile in tiles)
+            // {
+            //     var hit = tile.Moveable.Hit();
+            //     if (!hit)
+            //     {
+            //         allowSetToGrid = false;
+            //         break;
+            //     }
+            //
+            //     // base tile ın üstünde herhangi birşey var mı kontrolü
+            //     var baseTile = hit.transform.GetComponent<BaseTile>();
+            //     if (BaseGrid.Instance.GetOccupatableCount(baseTile) <= 0)
+            //     {
+            //         allowSetToGrid = false;
+            //         break;
+            //     }
+            //
+            //     hitCount++;
+            // }
+
             if (allowSetToGrid)
+            {
                 Recolor(ColorTypes.Hover);
+
+                foreach (var baseLine in lineHits)
+                {
+                    baseLine.SetOccupied();
+                }
+            }
             else
                 Recolor(ColorTypes.ItemStill);
 
             return allowSetToGrid;
+        }
+
+        private List<BaseLine> GetBaseLineHits()
+        {
+            var hits = lines.Select(p => p.Hit()).ToList();
+
+            var list = new List<BaseLine>();
+            foreach (var hit in hits)
+            {
+                if (hit && hit.transform != null)
+                {
+                    list.Add(hit.transform.GetComponent<BaseLine>());
+                }
+            }
+
+            return list;
         }
     }
 }

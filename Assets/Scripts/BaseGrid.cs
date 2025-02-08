@@ -16,12 +16,12 @@ namespace StickBlast
         private GridManager gridManager;
 
         [SerializeField]
-        private Line linePrefab;
+        private BaseLine linePrefab;
 
         [SerializeField]
         private Transform linesContent;
 
-        private List<Line> lines;
+        private List<BaseLine> lines;
         private List<BaseTileOccupation> occupiedTiles;
 
         private void Start()
@@ -32,28 +32,22 @@ namespace StickBlast
 
         private void DrawLines()
         {
-            lines = new List<Line>();
+            lines = new List<BaseLine>();
             for (int i = gridManager.Tiles.Count - 1; i >= 0; i--)
             {
                 var tile = gridManager.Tiles[i];
-                // Your code here
-                var right = tile.GetNeighbour(Direction.Right);
 
+                var right = tile.GetNeighbour(Direction.Right);
                 if (right)
-                {
-                    DrawLine((BaseTile)tile, (BaseTile)right);
-                }
+                    DrawLine((BaseTile)tile, (BaseTile)right, LineDirection.Horizontal);
 
                 var up = tile.GetNeighbour(Direction.Up);
-
                 if (up)
-                {
-                    DrawLine((BaseTile)tile, (BaseTile)up);
-                }
+                    DrawLine((BaseTile)tile, (BaseTile)up, LineDirection.Vertical);
             }
         }
 
-        private void DrawLine(BaseTile tileA, BaseTile tileB)
+        private void DrawLine(BaseTile tileA, BaseTile tileB, LineDirection lineDirection)
         {
             if (tileA == null || tileB == null) return;
 
@@ -72,199 +66,378 @@ namespace StickBlast
             scale.x = distance / line.GetComponent<SpriteRenderer>().bounds.size.x;
             line.transform.localScale = scale;
 
-            line.SetConnectedTiles(tileA, tileB);
+            line.Set(tileA.coordinate, lineDirection, tileA, tileB);
 
             lines.Add(line);
         }
 
+        #region Check grid fullness
+
         public void CheckGrid()
         {
-            List<int> fullRowIndexes = new List<int>();
-            List<int> fullColumnIndexes = new List<int>();
+            HashSet<int> fullRowHorizontalIndexes = new HashSet<int>();
+            HashSet<int> fullRowVerticalIndexes = new HashSet<int>();
+            
+            HashSet<int> fullColumnVerticalIndexes = new HashSet<int>();
+            HashSet<int> fullColumnHorizontalIndexes = new HashSet<int>();
 
+
+            CheckHorizontal();
+            return;
 
             for (int i = 0; i < GameConfigs.Instance.BaseGridSize.y; i++)
             {
-                if (IsFullRow(i))
+                if (IsFullRowHorizontal(i)) // Row full both horizontal
                 {
                     Debug.Log($"Row {i} is full");
-                    fullRowIndexes.Add(i);
+                    fullRowHorizontalIndexes.Add(i);
+                }
+                
+                if (IsFullRowVertical(i)) // Row full both vertical
+                {
+                    Debug.Log($"Row {i} is full");
+                    fullRowVerticalIndexes.Add(i);
                 }
             }
 
             for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x; i++)
             {
-                if (IsFullColumn(i))
+                if (IsFullVerticalColumn(i))
                 {
                     Debug.Log($"Column {i} is full");
-                    fullColumnIndexes.Add(i);
+                    fullColumnVerticalIndexes.Add(i);
+                }
+                
+                if (IsFullHorizontalColumn(i))
+                {
+                    Debug.Log($"Column {i} is full");
+                    fullColumnHorizontalIndexes.Add(i);
                 }
             }
 
-            List<int> willDestrorRowIndexes = new List<int>();
-            List<int> willDestroyColumnIndexes = new List<int>();
+            // Benzersiz silinecek indeksleri belirle
+            HashSet<int> willDestroyRowIndexes = new HashSet<int>();
+            HashSet<int> willDestroyColumnIndexes = new HashSet<int>();
 
 
+            // Yatay
             int prevIndex = -10;
-            foreach (var rowIndex in fullRowIndexes)
+
+            foreach (var index in fullRowHorizontalIndexes)
             {
-                if (prevIndex + 1 == rowIndex)
+                if (prevIndex + 1 == index)
                 {
-                    willDestrorRowIndexes.Add(prevIndex);
-                    willDestrorRowIndexes.Add(rowIndex);
+                    if (fullRowVerticalIndexes.Contains(prevIndex))
+                    {
+                        willDestroyRowIndexes.Add(prevIndex);
+                        willDestroyRowIndexes.Add(index);
+                        willDestroyColumnIndexes.Add(prevIndex);
+                    }
                 }
                 else
                 {
-                    prevIndex = rowIndex;
+                    prevIndex = index;
                 }
             }
+            
+            // for (int i = 0; i < fullRowHorizontalIndexes.Count; i++)
+            // {
+            //     if (prevIndex + 1 == i)
+            //     {
+            //         if (fullColumnHorizontalIndexes.Contains(prevIndex))
+            //         {
+            //             willDestroyRowIndexes.Add(prevIndex);
+            //             willDestroyRowIndexes.Add(i);
+            //             willDestroyColumnIndexes.Add(prevIndex);
+            //         }
+            //     }
+            //     else
+            //     {
+            //         prevIndex = fullRowHorizontalIndexes[i];
+            //     }
+            // }
 
+            // Dikey
             prevIndex = -10;
-            foreach (var colIndex in fullColumnIndexes)
+            
+            foreach (var index in fullColumnVerticalIndexes)
             {
-                if (prevIndex + 1 == colIndex)
+                if (prevIndex + 1 == index)
                 {
-                    willDestroyColumnIndexes.Add(prevIndex);
-                    willDestroyColumnIndexes.Add(colIndex);
+                    if (fullColumnHorizontalIndexes.Contains(prevIndex))
+                    {
+                        willDestroyColumnIndexes.Add(prevIndex);
+                        willDestroyColumnIndexes.Add(index);
+                        willDestroyRowIndexes.Add(prevIndex);
+                    }
                 }
                 else
                 {
-                    prevIndex = colIndex;
+                    prevIndex = index;
                 }
             }
 
-            foreach (var rowIndex in willDestrorRowIndexes)
+
+            // Satırları temizle
+            foreach (var rowIndex in willDestroyRowIndexes)
             {
-                for (int colIndex = 0; colIndex < GameConfigs.Instance.BaseGridSize.x; colIndex++)
+                foreach (var colIndex in willDestroyColumnIndexes)
                 {
                     var tile = (BaseTile)gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
-                    RemoveOccupied(tile);
+                    tile.ReColor(ColorTypes.Passive);
+
+                    var line = GetLine(colIndex, rowIndex, LineDirection.Horizontal);
+                    if (line)
+                        line.RemoveOccupied();
                 }
             }
 
+            // Sütunları temizle
             foreach (var colIndex in willDestroyColumnIndexes)
             {
-                for (int rowIndex = 0; rowIndex < GameConfigs.Instance.BaseGridSize.y; rowIndex++)
+                foreach (var rowIndex in willDestroyRowIndexes)
                 {
                     var tile = (BaseTile)gridManager.GetTile(new Vector2Int(colIndex, rowIndex));
-                    RemoveOccupied(tile);
+                    tile.ReColor(ColorTypes.Passive);
+
+                    var line = GetLine(colIndex, rowIndex, LineDirection.Vertical);
+                    if (line)
+                        line.RemoveOccupied();
                 }
             }
         }
 
-        private bool IsFullRow(int row)
+
+        private void CheckHorizontal()
         {
+            HashSet<BaseLine> linesToRemove = new HashSet<BaseLine>();
+            HashSet<BaseTile> tilesToRemove = new HashSet<BaseTile>();
+            
+            for (int row = 0; row < GameConfigs.Instance.BaseGridSize.y; row++)
+            {
+                if (IsFullRowHorizontal(row) && IsFullRowVertical(row)) // Row full both horizontal
+                {
+                    if(row+1 < GameConfigs.Instance.BaseGridSize.y)
+                        if (IsFullRowHorizontal(row+1)) // Row full both horizontal
+                        {
+                            Debug.Log($"Row {row} to row {row+1} is full");
+
+                            var horizontalLines = GetHorizontalLines(row);
+                            var verticalLines = GetVerticalLines(row);
+                            var horizontalLines2 = GetHorizontalLines(row+1);
+
+                            foreach (var line in horizontalLines)
+                                linesToRemove.Add(line);
+                            
+                            foreach (var line in verticalLines)
+                                linesToRemove.Add(line);
+                            
+                            foreach (var line in horizontalLines2)
+                                linesToRemove.Add(line);
+
+                            var tiles1 = GetHorizontalTiles(row);
+                            var tiles2 = GetHorizontalTiles(row +1);
+
+                            foreach (var tile in tiles1)
+                                tilesToRemove.Add(tile); 
+                            
+                            foreach (var tile in tiles2)
+                                tilesToRemove.Add(tile);
+                        }
+                }
+            }
+
+            foreach (var line in linesToRemove)
+                line.RemoveOccupied();
+            
+            foreach (var tile in tilesToRemove)
+                tile.ReColor(ColorTypes.Passive);
+        }
+        
+        private bool IsFullRowHorizontal(int row)
+        {
+            // Yatay
+            for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x - 1; i++)
+            {
+                var line = GetLine(i, row, LineDirection.Horizontal);
+                if (line == null || !line.IsOccupied) return false;
+            }
+            
+
+            return true;
+        }
+        
+        
+        private HashSet<BaseLine> GetHorizontalLines(int row)
+        {
+            // Yatay
+            HashSet<BaseLine> lines = new HashSet<BaseLine>();
+            for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x - 1; i++)
+            {
+                var line = GetLine(i, row, LineDirection.Horizontal);
+                lines.Add(line);
+            }
+
+            return lines;
+        } 
+        
+        private HashSet<BaseLine> GetVerticalLines(int row)
+        {
+            // Yatay
+            HashSet<BaseLine> lines = new HashSet<BaseLine>();
+            
             for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x; i++)
             {
-                var tile = (BaseTile)gridManager.GetTile(new Vector2Int(i, row));
-
-                if (!IsOccupied(tile))
-                {
-                    return false;
-                }
+                var line = GetLine(i, row, LineDirection.Vertical);
+                lines.Add(line);
             }
 
-            return true;
+            return lines;
         }
 
-        private bool IsFullColumn(int column)
+        
+        private HashSet<BaseTile> GetHorizontalTiles(int row)
         {
+            // Yatay
+            HashSet<BaseTile> tiles = new HashSet<BaseTile>();
+            for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x; i++)
+            {
+                var tile = GetTile(i, row);
+                tiles.Add(tile);
+            }
+
+            return tiles;
+        }
+        
+        private bool IsFullRowVertical(int row)
+        {
+            // Dikey
+            for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x; i++)
+            {
+                var line = GetLine(i, row, LineDirection.Vertical);
+                if (line == null || !line.IsOccupied) return false;
+            }
+            return true;
+        }
+        
+        private bool IsFullVerticalColumn(int column)
+        {
+            // Dikey
+            for (int i = 0; i < GameConfigs.Instance.BaseGridSize.y - 1; i++)
+            {
+                var line = GetLine(column, i, LineDirection.Vertical);
+                if (line == null || !line.IsOccupied) return false;
+            }
+            
+            return true;
+        }
+        
+        private bool IsFullHorizontalColumn(int column)
+        {
+            // Yatay
             for (int i = 0; i < GameConfigs.Instance.BaseGridSize.y; i++)
             {
-                var tile = (BaseTile)gridManager.GetTile(new Vector2Int(column, i));
-
-                if (!IsOccupied(tile))
-                {
-                    return false;
-                }
+                var line = GetLine(column, i, LineDirection.Horizontal);
+                if (line == null || !line.IsOccupied) return false;
             }
-
             return true;
         }
+        
+        private BaseLine GetLine(int x, int y, LineDirection direction)
+        {
+            return lines.SingleOrDefault(p => p.coordinate == new Vector2Int(x, y) && p.lineDirection == direction);
+        }
+
+        private BaseTile GetTile(int x, int y)
+        {
+            return (BaseTile)gridManager.Tiles.SingleOrDefault(p => p.coordinate == new Vector2Int(x, y));
+        }
+
+        #endregion
 
         public void PutItemToGrid(List<BaseTile> baseTilesToHit, List<ItemTile> itemTiles)
         {
-            AddOccupiedTiles(baseTilesToHit);
+            // AddOccupiedTiles(baseTilesToHit);
 
             for (int i = 0; i < baseTilesToHit.Count; i++)
             {
                 baseTilesToHit[i].ReColor(ColorTypes.Active);
 
-                var allNeighbours = itemTiles[i].Neighbours;
+                // var allNeighbours = itemTiles[i].Neighbours;
 
-                foreach (var neighbour in allNeighbours)
-                {
-                    var tileB = (BaseTile)baseTilesToHit[i].GetNeighbour(neighbour.direction);
-
-                    var line = lines.SingleOrDefault(p => p.Compare(baseTilesToHit[i], tileB));
-
-                    if (line)
-                    {
-                        line.ReColor(ColorTypes.Active);
-                    }
-                }
+                // foreach (var neighbour in allNeighbours)
+                // {
+                //     var tileB = (BaseTile)baseTilesToHit[i].GetNeighbour(neighbour.direction);
+                //
+                //     var line = lines.SingleOrDefault(p => p.Compare(baseTilesToHit[i], tileB));
+                //
+                //     if (line)
+                //     {
+                //         line.ReColor(ColorTypes.Active);
+                //     }
+                // }
             }
         }
 
-        public void AddOccupiedTiles(List<BaseTile> tiles)
-        {
-            foreach (var tile in tiles)
-            {
-                AddOccupiedTile(tile);
-            }
-        }
-
-        public void AddOccupiedTile(BaseTile tile)
-        {
-            if (!IsOccupationExist(tile))
-            {
-                occupiedTiles.Add(new BaseTileOccupation(tile, tile.Neighbours.Count));
-            }
-            else
-            {
-                var occupation = GetOccupation(tile);
-                occupation.ConnectionCount++;
-            }
-        }
-
-        public bool IsOccupationExist(BaseTile tile)
-        {
-            var occupiedTile = GetOccupation(tile);
-
-            return occupiedTile != null;
-        }
-
-        public bool IsOccupied(BaseTile tile)
-        {
-            var occupiedTile = GetOccupation(tile);
-
-            if (occupiedTile == null || occupiedTile.ConnectionCount < GameConfigs.Instance.BaseGridMaxOccupation)
-                return false;
-
-            return true;
-        }
-        
-        public int GetOccupatableCount(BaseTile tile)
-        {
-            var occupiedTile = GetOccupation(tile);
-
-            if (occupiedTile == null)
-                return GameConfigs.Instance.BaseGridMaxOccupation;
-
-            return GameConfigs.Instance.BaseGridMaxOccupation - occupiedTile.ConnectionCount;
-        }
-
-        private BaseTileOccupation GetOccupation(BaseTile tile)
-        {
-            return occupiedTiles.SingleOrDefault(p => p.BaseTile == tile);
-        }
-
-        public void RemoveOccupied(BaseTile tile)
-        {
-            var occupiedTile = GetOccupation(tile);
-
-            if (occupiedTile != null)
-                occupiedTiles.Remove(occupiedTile);
-        }
+        // public void AddOccupiedTiles(List<BaseTile> tiles)
+        // {
+        //     foreach (var tile in tiles)
+        //     {
+        //         AddOccupiedTile(tile);
+        //     }
+        // }
+        //
+        // public void AddOccupiedTile(BaseTile tile)
+        // {
+        //     if (!IsOccupationExist(tile))
+        //     {
+        //         occupiedTiles.Add(new BaseTileOccupation(tile, tile.Neighbours.Count));
+        //     }
+        //     else
+        //     {
+        //         var occupation = GetOccupation(tile);
+        //         occupation.ConnectionCount++;
+        //     }
+        // }
+        //
+        // public bool IsOccupationExist(BaseTile tile)
+        // {
+        //     var occupiedTile = GetOccupation(tile);
+        //
+        //     return occupiedTile != null;
+        // }
+        //
+        // public bool IsOccupied(BaseTile tile)
+        // {
+        //     var occupiedTile = GetOccupation(tile);
+        //
+        //     if (occupiedTile == null || occupiedTile.ConnectionCount < GameConfigs.Instance.BaseGridMaxOccupation)
+        //         return false;
+        //
+        //     return true;
+        // }
+        //
+        // public int GetOccupatableCount(BaseTile tile)
+        // {
+        //     var occupiedTile = GetOccupation(tile);
+        //
+        //     if (occupiedTile == null)
+        //         return GameConfigs.Instance.BaseGridMaxOccupation;
+        //
+        //     return GameConfigs.Instance.BaseGridMaxOccupation - occupiedTile.ConnectionCount;
+        // }
+        //
+        // private BaseTileOccupation GetOccupation(BaseTile tile)
+        // {
+        //     return occupiedTiles.SingleOrDefault(p => p.BaseTile == tile);
+        // }
+        //
+        // public void RemoveOccupied(BaseTile tile)
+        // {
+        //     var occupiedTile = GetOccupation(tile);
+        //
+        //     if (occupiedTile != null)
+        //         occupiedTiles.Remove(occupiedTile);
+        // }
     }
 }

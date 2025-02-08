@@ -1,22 +1,20 @@
 // maebleme2
 
-using System;
-using System.Linq;
 using Ebleme;
 using StickBlast.Grid;
 using UnityEngine;
 
 namespace StickBlast
 {
-    public class Line:MonoBehaviour
+    public class BaseLine:MonoBehaviour
     {
         public TileController[] ConnectedTiles { get; private set; }
-        
-        
         private SpriteRenderer spriteRenderer;
 
-        private Vector3 startPosition;
+        public Vector2Int coordinate;
+        public LineDirection lineDirection;
 
+        public bool IsOccupied;
 
         public bool Compare(params TileController[] connectedTiles)
         {
@@ -33,11 +31,6 @@ namespace StickBlast
             return true;
         }
         
-        public Vector2Int[] GetCoordinates()
-        {
-            return ConnectedTiles.Select(p => p.coordinate).ToArray();
-        }
-
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -46,17 +39,14 @@ namespace StickBlast
 
         private void Start()
         {
-            startPosition = transform.position;
         }
         
-        public void BackToStartPosition()
-        {
-            transform.position = startPosition;
-        }
-
-        public void SetConnectedTiles(params TileController[] tiles)
+        public void Set(Vector2Int coordinate, LineDirection direction, params TileController[] tiles)
         {
             ConnectedTiles = tiles;
+            this.coordinate = coordinate;
+
+            lineDirection = direction;
         }
 
         public void ReColor(ColorTypes status)
@@ -78,6 +68,20 @@ namespace StickBlast
                 default:
                     break;
             }
+        }
+
+        public void SetOccupied()
+        {
+            IsOccupied = true;
+            
+            ReColor(ColorTypes.Active);
+        }
+        
+        public void RemoveOccupied()
+        {
+            IsOccupied = false;
+            
+            ReColor(ColorTypes.Passive);
         }
     }
 }

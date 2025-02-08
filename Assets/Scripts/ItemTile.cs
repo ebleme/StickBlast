@@ -9,8 +9,7 @@ namespace StickBlast
     public class ItemTile:TileController
     {
         public Moveable Moveable { get; private set; }
-
-       
+        
         public Item Item { get; private set; }
        
         private Collider2D collider2d;

@@ -30,4 +30,10 @@ namespace StickBlast
         Hover,
         Active,
     }
+
+    public enum LineDirection
+    {
+        Horizontal,
+        Vertical
+    }
 }

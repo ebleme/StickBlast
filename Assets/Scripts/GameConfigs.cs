@@ -7,6 +7,13 @@ namespace Ebleme
     public class GameConfigs : SingletonScriptableObject<GameConfigs>
     {
         [SerializeField]
+        private LayerMask baseTileLayer;
+
+        [SerializeField]
+        private LayerMask baseLineLayer;
+
+        
+        [SerializeField]
         private int baseGridMaxOccupation;
 
         [SerializeField]
@@ -33,6 +40,9 @@ namespace Ebleme
         public Color ItemStillColor => itemStillColor;
 
         public int BaseGridMaxOccupation => baseGridMaxOccupation;
+        
+        public LayerMask BaseTileLayer => baseTileLayer;
+        public LayerMask BaseLineLayer => baseLineLayer;
 
     }
 }

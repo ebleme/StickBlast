@@ -135,11 +135,11 @@ namespace StickBlast
             return Physics2D.Raycast(transform.position, Vector3.forward, 30, layerMask);
         }
 
-        private void FixedUpdate()
-        {
-            var hit = Hit();
-        
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 20, hit ? Color.yellow : Color.white);
-        }
+        // private void FixedUpdate()
+        // {
+        //     var hit = Hit();
+        //
+        //     Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 20, hit ? Color.yellow : Color.white);
+        // }
     }
 }
