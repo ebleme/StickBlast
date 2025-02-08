@@ -81,7 +81,7 @@ namespace StickBlast
         {
             IsOccupied = false;
             
-            ReColor(ColorTypes.Passive);
+            ReColor(ColorTypes.Hover);
         }
     }
 }
