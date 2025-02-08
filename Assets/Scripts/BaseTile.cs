@@ -1,5 +1,6 @@
 // maebleme2
 
+using System;
 using System.Collections.Generic;
 using Ebleme;
 using StickBlast.Grid;
@@ -14,10 +15,17 @@ namespace StickBlast
         private Collider2D collider2d;
         private SpriteRenderer spriteRenderer;
 
+        private bool IsOccupied;
+        
         private void Awake()
         {
             collider2d = GetComponent<Collider2D>();
             spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        private void Start()
+        {
+            ReColor(ColorTypes.Passive);
         }
 
         public void ReColor(ColorTypes type)
@@ -39,6 +47,30 @@ namespace StickBlast
                 default:
                     break;
             }
+        }
+
+        public void DeHover()
+        {
+            ReColor(IsOccupied ? ColorTypes.Active: ColorTypes.Passive);
+        }
+
+        public void Hover()
+        {
+            ReColor(IsOccupied ? ColorTypes.Active: ColorTypes.Hover);
+        }
+
+        public void SetOccupied()
+        {
+            IsOccupied = true;
+            
+            ReColor(ColorTypes.Active);
+        }
+        
+        public void DeOccupied()
+        {
+            IsOccupied = false;
+            
+            ReColor(ColorTypes.Passive);
         }
     }
 }

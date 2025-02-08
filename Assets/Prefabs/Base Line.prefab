@@ -101,6 +101,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adcf1cce169e47be9e11bfa879c5593f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  coordinate: {x: 0, y: 0}
+  lineDirection: 0
+  IsOccupied: 0
 --- !u!61 &2746580610169336577
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -145,5 +148,5 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.62, y: 3.23}
+  m_Size: {x: 0.62, y: 5.5}
   m_EdgeRadius: 0

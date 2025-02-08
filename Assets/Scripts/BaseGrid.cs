@@ -28,6 +28,8 @@ namespace StickBlast
             DrawLines();
         }
 
+        #region Line Draw
+
         private void DrawLines()
         {
             lines = new List<BaseLine>();
@@ -49,14 +51,14 @@ namespace StickBlast
         {
             if (tileA == null || tileB == null) return;
 
-            Transform pointA = tileA.transform, pointB = tileB.transform;
-
-            float distance = Vector2.Distance(pointA.position, pointB.position);
+            Vector2 pointA = tileA.transform.position, pointB = tileB.transform.position;
+            
+            float distance = Vector2.Distance(pointA, pointB);
 
             var line = Instantiate(linePrefab, linesContent);
-            line.transform.position = (pointA.position + pointB.position) / 2;
+            line.transform.position = (Vector2)(pointA + pointB) / 2;
 
-            Vector2 direction = pointB.position - pointA.position;
+            Vector2 direction = pointB - pointA;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             line.transform.rotation = Quaternion.Euler(0, 0, angle);
 
@@ -66,8 +68,11 @@ namespace StickBlast
 
             line.Set(tileA.coordinate, lineDirection, tileA, tileB);
 
+            line.ReColor(ColorTypes.Passive);
             lines.Add(line);
         }
+
+        #endregion
 
         #region Check grid fullness
 
@@ -150,10 +155,10 @@ namespace StickBlast
             }
 
             foreach (var line in linesToRemove)
-                line.RemoveOccupied();
+                line.DeOccupied();
 
             foreach (var tile in tilesToRemove)
-                tile.ReColor(ColorTypes.Hover);
+                tile.DeOccupied();
         }
 
         private bool IsFullRowHorizontal(int row)
@@ -168,7 +173,7 @@ namespace StickBlast
 
             return true;
         }
-        
+
         private HashSet<BaseLine> GetHorizontalLinesByRow(int row)
         {
             // Yatay
@@ -222,7 +227,6 @@ namespace StickBlast
 
             return lines;
         }
-
 
         private HashSet<BaseTile> GetHorizontalTiles(int row)
         {
@@ -297,29 +301,59 @@ namespace StickBlast
         }
 
         #endregion
-
-        public void PutItemToGrid(List<BaseTile> baseTilesToHit, List<ItemTile> itemTiles)
+        
+        
+        public void PutItemToGrid(List<BaseLine> lines)
         {
-            // AddOccupiedTiles(baseTilesToHit);
+            if (lines== null)
+                return;
 
-            for (int i = 0; i < baseTilesToHit.Count; i++)
+            foreach (var line in lines)
             {
-                baseTilesToHit[i].ReColor(ColorTypes.Active);
-
-                // var allNeighbours = itemTiles[i].Neighbours;
-
-                // foreach (var neighbour in allNeighbours)
-                // {
-                //     var tileB = (BaseTile)baseTilesToHit[i].GetNeighbour(neighbour.direction);
-                //
-                //     var line = lines.SingleOrDefault(p => p.Compare(baseTilesToHit[i], tileB));
-                //
-                //     if (line)
-                //     {
-                //         line.ReColor(ColorTypes.Active);
-                //     }
-                // }
+                foreach (var tileController in line.ConnectedTiles)
+                {
+                    var tile = (BaseTile)tileController;
+                    tile.SetOccupied();
+                }
+                
+                line.SetOccupied();
             }
+        }
+
+        public void Hover(List<BaseLine> hoverLines)
+        {
+            if (hoverLines != null)
+                foreach (var line in hoverLines)
+                {
+                    foreach (var tileController in line.ConnectedTiles)
+                    {
+                        var tile = (BaseTile)tileController;
+                        tile.ReColor(ColorTypes.Hover);
+                    }
+                    
+                    line.ReColor(ColorTypes.Hover);
+                }
+
+            foreach (var line in hoverLines)
+            {
+                line.ReColor(ColorTypes.Hover);
+            }
+        }
+        
+        public void DeHover(List<BaseLine> hoverLines)
+        {
+            if (hoverLines != null)
+                foreach (var line in hoverLines)
+                {
+                    line.DeHover();
+                    
+                    foreach (var tileController in line.ConnectedTiles)
+                    {
+                        var tile = (BaseTile)tileController;
+                        tile.DeHover();
+                    }
+                    
+                }
         }
     }
 }

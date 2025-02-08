@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace StickBlast
 {
-    public class BaseLine:MonoBehaviour
+    public class BaseLine : MonoBehaviour
     {
         public TileController[] ConnectedTiles { get; private set; }
         private SpriteRenderer spriteRenderer;
@@ -19,7 +19,7 @@ namespace StickBlast
         public bool Compare(params TileController[] connectedTiles)
         {
             if (connectedTiles.Length != ConnectedTiles.Length) return false;
-            
+
             for (int i = 0; i < ConnectedTiles.Length; i++)
             {
                 if (ConnectedTiles[i].coordinate != connectedTiles[i].coordinate)
@@ -30,7 +30,7 @@ namespace StickBlast
 
             return true;
         }
-        
+
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -39,8 +39,9 @@ namespace StickBlast
 
         private void Start()
         {
+            
         }
-        
+
         public void Set(Vector2Int coordinate, LineDirection direction, params TileController[] tiles)
         {
             ConnectedTiles = tiles;
@@ -73,15 +74,25 @@ namespace StickBlast
         public void SetOccupied()
         {
             IsOccupied = true;
-            
+
             ReColor(ColorTypes.Active);
         }
-        
-        public void RemoveOccupied()
+
+        public void DeOccupied()
         {
             IsOccupied = false;
-            
-            ReColor(ColorTypes.Hover);
+
+            ReColor(ColorTypes.Passive);
+        }
+
+        public void DeHover()
+        {
+            ReColor(IsOccupied ? ColorTypes.Active: ColorTypes.Passive);
+        }
+
+        public void Hover()
+        {
+            ReColor(IsOccupied ? ColorTypes.Active: ColorTypes.Hover);
         }
     }
 }

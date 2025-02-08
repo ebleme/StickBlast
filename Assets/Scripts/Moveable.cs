@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 
 namespace StickBlast
 {
-    public class Moveable : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+    public class Moveable : MonoBehaviour//, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         [SerializeField]
         private LayerMask layerMask;
@@ -20,40 +20,40 @@ namespace StickBlast
             itemTile = GetComponent<ItemTile>();
         }
 
-        #region Pointers
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            var target = Camera.main.ScreenToWorldPoint(eventData.position);
-            offset = itemTile.Item.GetPosition() - target;
-            
-            itemTile.Item.SetMovingScale();
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            Vector2 target = Camera.main.ScreenToWorldPoint(eventData.position);
-            target += offset;
-
-            itemTile.Item.SetPosition(target);
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            var allowSetToGrid = itemTile.Item.AllowSetToGrid();
-
-            if (allowSetToGrid)
-            {
-                itemTile.Item.AssingItemTilesToGridTiles();
-                BaseGrid.Instance.CheckGrid();
-            }
-            else
-            {
-                itemTile.Item.ReleaseAll();
-            }
-        }
-
-        #endregion
+        // #region Pointers
+        //
+        // public void OnPointerDown(PointerEventData eventData)
+        // {
+        //     var target = Camera.main.ScreenToWorldPoint(eventData.position);
+        //     offset = itemTile.Item.GetPosition() - target;
+        //     
+        //     itemTile.Item.SetMovingScale();
+        // }
+        //
+        // public void OnDrag(PointerEventData eventData)
+        // {
+        //     Vector2 target = Camera.main.ScreenToWorldPoint(eventData.position);
+        //     target += offset;
+        //
+        //     itemTile.Item.SetPosition(target);
+        // }
+        //
+        // public void OnPointerUp(PointerEventData eventData)
+        // {
+        //     var allowSetToGrid = itemTile.Item.AllowSetToGrid();
+        //
+        //     if (allowSetToGrid)
+        //     {
+        //         itemTile.Item.AssingItemTilesToGridTiles();
+        //         BaseGrid.Instance.CheckGrid();
+        //     }
+        //     else
+        //     {
+        //         itemTile.Item.ReleaseAll();
+        //     }
+        // }
+        //
+        // #endregion
 
         #region Manager
 

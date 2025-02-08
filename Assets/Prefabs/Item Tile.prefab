@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5207368817958711277}
   - component: {fileID: 9151789436853612657}
   - component: {fileID: 7169452913049119724}
-  - component: {fileID: 4026078768147642440}
   m_Layer: 0
   m_Name: Item Tile
   m_TagString: Untagged
@@ -150,18 +149,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   neighbours: []
   coordinate: {x: 0, y: 0}
---- !u!114 &4026078768147642440
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4507199345464493923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd4b04ac6d344daf9c194745509f87cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 64

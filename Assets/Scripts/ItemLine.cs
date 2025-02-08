@@ -11,24 +11,27 @@ namespace StickBlast
     public class ItemLine:MonoBehaviour
     {
         public TileController[] ConnectedTiles { get; private set; }
+        public LineDirection lineDirection;
+        public Vector2Int coordinate;
 
         private SpriteRenderer spriteRenderer;
         private Vector3 startPosition;
+        private bool IsOccupied;
 
-        public bool Compare(params TileController[] connectedTiles)
-        {
-            if (connectedTiles.Length != ConnectedTiles.Length) return false;
-            
-            for (int i = 0; i < ConnectedTiles.Length; i++)
-            {
-                if (ConnectedTiles[i].coordinate != connectedTiles[i].coordinate)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        // public bool Compare(params TileController[] connectedTiles)
+        // {
+        //     if (connectedTiles.Length != ConnectedTiles.Length) return false;
+        //     
+        //     for (int i = 0; i < ConnectedTiles.Length; i++)
+        //     {
+        //         if (ConnectedTiles[i].coordinate != connectedTiles[i].coordinate)
+        //         {
+        //             return false;
+        //         }
+        //     }
+        //
+        //     return true;
+        // }
         
         public RaycastHit2D Hit()
         {
@@ -51,10 +54,15 @@ namespace StickBlast
             transform.position = startPosition;
         }
 
-        public void SetConnectedTiles(params TileController[] tiles)
+        public void Set(Vector2Int coordinate, LineDirection direction, params TileController[] tiles)
         {
             ConnectedTiles = tiles;
-        }
+            this.coordinate = coordinate;
+
+            lineDirection = direction;
+        }    
+        
+        
 
         public void ReColor(ColorTypes status)
         {

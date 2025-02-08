@@ -16,7 +16,6 @@ namespace StickBlast
         private Vector3 startPosition;
         private SpriteRenderer spriteRenderer;
 
-        public BaseTile HitBaseTile => Moveable.Hit().transform.GetComponent<BaseTile>();
         
         private void Awake()
         {
@@ -76,6 +75,11 @@ namespace StickBlast
                 default:
                     break;
             }
+        }
+        
+        public RaycastHit2D Hit()
+        {
+            return Physics2D.Raycast(transform.position, Vector3.forward, 30, GameConfigs.Instance.BaseTileLayer);
         }
     }
 }

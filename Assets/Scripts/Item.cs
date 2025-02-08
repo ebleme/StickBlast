@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using StickBlast.Grid;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace StickBlast
 {
-    public class Item : MonoBehaviour
+    public class Item : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         [SerializeField]
         private List<ItemLine> lines;
@@ -27,6 +28,12 @@ namespace StickBlast
 
         private Vector3 startScale;
         private Vector3 startPosition;
+        private Vector2 offset;
+
+        private List<BaseTile> baseTilesHit;
+        private List<BaseLine> baseLinesHit;
+
+        private bool canPlaced;
 
         private void Start()
         {
@@ -37,102 +44,7 @@ namespace StickBlast
             DrawLines();
             Recolor(ColorTypes.ItemStill);
         }
-
-
-        private void Recolor(ColorTypes colorType)
-        {
-            RecolorItems(colorType);
-            RecolorLines(colorType);
-        }
-
-
-        private void RecolorItems(ColorTypes colorType)
-        {
-            foreach (var tile in tiles)
-            {
-                tile.ReColor(colorType);
-            }
-        }
-
-        private void RecolorLines(ColorTypes colorType)
-        {
-            foreach (var line in lines)
-            {
-                line.ReColor(colorType);
-            }
-        }
-
-        private void DrawLines()
-        {
-            foreach (Transform c in linesContent)
-                Destroy(c.gameObject);
-
-            lines = new List<ItemLine>();
-            for (int i = tiles.Count - 1; i >= 0; i--)
-            {
-                var tile = tiles[i];
-                // Your code here
-                var right = tile.GetNeighbour(Direction.Right);
-
-                if (right && right.gameObject.activeSelf)
-                {
-                    DrawLine((ItemTile)tile, (ItemTile)right);
-                }
-
-                var up = tile.GetNeighbour(Direction.Up);
-
-                if (up && up.gameObject.activeSelf)
-                {
-                    DrawLine((ItemTile)tile, (ItemTile)up);
-                }
-            }
-        }
-
-        private void DrawLine(ItemTile tileA, ItemTile tileB)
-        {
-            if (tileA == null || tileB == null) return;
-
-            Transform pointA = tileA.transform, pointB = tileB.transform;
-
-            float distance = Vector2.Distance(pointA.position, pointB.position);
-
-            var line = Instantiate(linePrefab, linesContent);
-            line.transform.position = (pointA.position + pointB.position) / 2;
-
-            Vector2 direction = pointB.position - pointA.position;
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            line.transform.rotation = Quaternion.Euler(0, 0, angle);
-
-            Vector3 scale = line.transform.localScale;
-            scale.x = distance / line.GetComponent<SpriteRenderer>().bounds.size.x;
-            line.transform.localScale = scale;
-
-            line.SetConnectedTiles(tileA, tileB);
-
-
-            lines.Add(line);
-        }
-
-        public Vector3 GetPosition()
-        {
-            return transform.position;
-        }
-
-        public void SetPosition(Vector3 position)
-        {
-            transform.position = position;
-        }
-
-        public void SetMovingScale()
-        {
-            transform.localScale = movingScale;
-        }
-
-        public void SetStartScale()
-        {
-            transform.localScale = startScale;
-        }
-
+        
         private void SetTilesList()
         {
             foreach (Transform c in transform)
@@ -152,33 +64,115 @@ namespace StickBlast
             }
         }
 
+        #region Color
+
+        private void Recolor(ColorTypes colorType)
+        {
+            RecolorItems(colorType);
+            RecolorLines(colorType);
+        }
+
+        private void RecolorItems(ColorTypes colorType)
+        {
+            foreach (var tile in tiles)
+            {
+                tile.ReColor(colorType);
+            }
+        }
+
+        private void RecolorLines(ColorTypes colorType)
+        {
+            foreach (var line in lines)
+            {
+                line.ReColor(colorType);
+            }
+        }
+
+        #endregion
+
+        #region Lines
+
+        private void DrawLines()
+        {
+            foreach (Transform c in linesContent)
+                Destroy(c.gameObject);
+
+            lines = new List<ItemLine>();
+            for (int i = tiles.Count - 1; i >= 0; i--)
+            {
+                var tile = tiles[i];
+                // Your code here
+                var right = tile.GetNeighbour(Direction.Right);
+
+                if (right && right.gameObject.activeSelf)
+                {
+                    DrawLine((ItemTile)tile, (ItemTile)right, LineDirection.Horizontal);
+                }
+
+                var up = tile.GetNeighbour(Direction.Up);
+
+                if (up && up.gameObject.activeSelf)
+                {
+                    DrawLine((ItemTile)tile, (ItemTile)up, LineDirection.Vertical);
+                }
+            }
+        }
+
+        private void DrawLine(ItemTile tileA, ItemTile tileB, LineDirection lineDirection)
+        {
+            if (tileA == null || tileB == null) return;
+
+            Transform pointA = tileA.transform, pointB = tileB.transform;
+
+            float distance = Vector2.Distance(pointA.position, pointB.position);
+
+            var line = Instantiate(linePrefab, linesContent);
+            line.transform.position = (pointA.position + pointB.position) / 2;
+
+            Vector2 direction = pointB.position - pointA.position;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            line.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+            Vector3 scale = line.transform.localScale;
+            scale.x = distance / line.GetComponent<SpriteRenderer>().bounds.size.x;
+            line.transform.localScale = scale;
+
+            line.Set(tileA.coordinate, lineDirection, tileA, tileB);
+
+
+            lines.Add(line);
+        }
+
+        #endregion
+
+        private void SetMovingScale()
+        {
+            transform.localScale = movingScale;
+        }
+
+        private void SetStartScale()
+        {
+            transform.localScale = startScale;
+        }
+        
         /// <summary>
         /// Set all tiles position to their start position
         /// </summary>
-        public void ReleaseAll()
+        private void ReleaseAll()
         {
             SetStartScale();
 
             transform.position = startPosition;
 
-            foreach (var tile in tiles)
-            {
-                tile.BackToStartPosition();
-            }
-
-            foreach (var line in lines)
-            {
-                line.BackToStartPosition();
-            }
-        }
-
-        public void AssingItemTilesToGridTiles()
-        {
-            List<BaseTile> baseTilesToHit = tiles.Select(tile => tile.HitBaseTile).ToList();
-
-            BaseGrid.Instance.PutItemToGrid(baseTilesToHit, tiles);
-
-            Destroy(gameObject);
+            // foreach (var tile in tiles)
+            // {
+            //     tile.BackToStartPosition();
+            // }
+            //
+            // foreach (var line in lines)
+            // {
+            //     line.BackToStartPosition();
+            // }
         }
 
         // private void ReColorLines(ColorTypes lineStat)
@@ -187,56 +181,51 @@ namespace StickBlast
         //         line.ReColor(lineStat);
         // }
 
-        public bool AllowSetToGrid()
+        public void AllowSetToGrid()
         {
-            var allowSetToGrid = true;
+            canPlaced = true;
 
-            // int hitCount = 0;
+            var newHitLines = GetBaseLineHits();
+            // var newHitTiles = GetBaseTileHits();
 
+            // if (newHitTiles != baseTilesHit || newHitLines != baseLinesHit)
+            // {
+            //     BaseGrid.Instance.DeHover(baseTilesHit, baseLinesHit);
+            // } 
 
-            var lineHits = GetBaseLineHits();
-            foreach (var baseLine in lineHits)
+            
+            // if (baseLinesHit != null && newHitLines != null && !newHitLines.SequenceEqual(baseLinesHit))
+            if (newHitLines != baseLinesHit)
             {
-                if (baseLine.IsOccupied)
-                {
-                    allowSetToGrid = false;
-                    break;
-                }
+                BaseGrid.Instance.DeHover(baseLinesHit);
             }
 
-            // foreach (var tile in tiles)
-            // {
-            //     var hit = tile.Moveable.Hit();
-            //     if (!hit)
-            //     {
-            //         allowSetToGrid = false;
-            //         break;
-            //     }
-            //
-            //     // base tile ın üstünde herhangi birşey var mı kontrolü
-            //     var baseTile = hit.transform.GetComponent<BaseTile>();
-            //     if (BaseGrid.Instance.GetOccupatableCount(baseTile) <= 0)
-            //     {
-            //         allowSetToGrid = false;
-            //         break;
-            //     }
-            //
-            //     hitCount++;
-            // }
+            baseLinesHit = newHitLines;
+            // baseTilesHit = newHitTiles;
 
-            if (allowSetToGrid)
+            // if (baseLinesHit.Count == lines.Count && baseTilesHit.Count == tiles.Count)
+            if (baseLinesHit.Count == lines.Count)
             {
-                Recolor(ColorTypes.Hover);
-
-                foreach (var baseLine in lineHits)
+                foreach (var baseLine in baseLinesHit)
                 {
-                    baseLine.SetOccupied();
+                    if (baseLine.IsOccupied)
+                    {
+                        canPlaced = false;
+                        break;
+                    }
                 }
             }
             else
-                Recolor(ColorTypes.ItemStill);
+            {
+                canPlaced = false;
+            }
 
-            return allowSetToGrid;
+            if (canPlaced)
+            {
+                BaseGrid.Instance.Hover(baseLinesHit);
+            }
+            // else
+            //     BaseGrid.Instance.DeHover(baseLinesHit);
         }
 
         private List<BaseLine> GetBaseLineHits()
@@ -244,15 +233,91 @@ namespace StickBlast
             var hits = lines.Select(p => p.Hit()).ToList();
 
             var list = new List<BaseLine>();
+
+            foreach (var line in lines)
+            {
+                var hit = line.Hit();
+
+                if (hit && hit.transform != null)
+                {
+                    var baseLine = hit.transform.GetComponent<BaseLine>();
+                    if (baseLine.lineDirection == line.lineDirection)
+                        list.Add(baseLine);
+                }
+            }
+
+            // foreach (var hit in hits)
+            // {
+            //     if (hit && hit.transform != null)
+            //     {
+            //         list.Add(hit.transform.GetComponent<BaseLine>());
+            //     }
+            // }
+
+            return list;
+        }
+
+        private List<BaseTile> GetBaseTileHits()
+        {
+            var hits = tiles.Select(p => p.Hit()).ToList();
+
+            var list = new List<BaseTile>();
             foreach (var hit in hits)
             {
                 if (hit && hit.transform != null)
                 {
-                    list.Add(hit.transform.GetComponent<BaseLine>());
+                    list.Add(hit.transform.GetComponent<BaseTile>());
                 }
             }
 
             return list;
         }
+
+
+        #region Pointers
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            var target = Camera.main.ScreenToWorldPoint(eventData.position);
+            offset = transform.position - target;
+
+            SetMovingScale();
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            Vector2 target = Camera.main.ScreenToWorldPoint(eventData.position);
+            target += offset;
+
+            transform.position = target;
+
+            AllowSetToGrid();
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (canPlaced)
+            {
+                AssingItemTilesToGridTiles();
+                BaseGrid.Instance.CheckGrid();
+            }
+            else
+            {
+                ReleaseAll();
+            }
+            
+            baseLinesHit = null;
+
+        }
+
+        public void AssingItemTilesToGridTiles()
+        {
+            // BaseGrid.Instance.PutItemToGrid(baseTilesHit, baseLinesHit);
+            BaseGrid.Instance.PutItemToGrid(baseLinesHit);
+
+            Destroy(gameObject);
+        }
+
+        #endregion
     }
 }
