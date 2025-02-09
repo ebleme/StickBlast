@@ -193,8 +193,6 @@ namespace StickBlast
 
         private List<BaseLine> GetBaseLineHits()
         {
-            // var hits = lines.Select(p => p.Hit()).ToList();
-
             var list = new List<BaseLine>();
 
             foreach (var line in lines)

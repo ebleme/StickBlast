@@ -95,11 +95,7 @@ namespace StickBlast
 
             DOVirtual.DelayedCall(GameConfigs.Instance.GridFillDuration, () => { onCompleted?.Invoke(); });
         }
-
-        private void HoverCells()
-        {
-            gridCells.HoverCells();
-        }
+        
 
         #region Check grid fullness
 
@@ -368,7 +364,7 @@ namespace StickBlast
                     }
                 }
 
-            HoverCells();
+            gridCells.HoverCells();
         }
 
         public void DeHover(List<BaseLine> hoverLines)
@@ -385,7 +381,7 @@ namespace StickBlast
                     }
                 }
             
-            HoverCells();
+            gridCells.HoverCells();
         }
     }
 }

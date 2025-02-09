@@ -16,7 +16,7 @@ namespace StickBlast
         private SpriteRenderer spriteRenderer;
         private Color hideColor = new Color(0, 0, 0, 0);
 
-        private HashSet<BaseLine> lines;
+        private HashSet<BaseLine> gridLines;
         private bool IsOccupied;
         private bool IsHovered;
 
@@ -35,7 +35,7 @@ namespace StickBlast
             this.coordinate = coordinate;
 
             // lines = new Dictionary<Direction, BaseLine>();
-            lines = new HashSet<BaseLine>
+            gridLines = new HashSet<BaseLine>
             {
                 topLine,
                 rightLine,
@@ -45,12 +45,12 @@ namespace StickBlast
 
 
             Vector3 center = Vector3.zero;
-            foreach (var line in lines)
+            foreach (var line in gridLines)
             {
                 center += line.transform.position;
             }
 
-            center /= lines.Count;
+            center /= gridLines.Count;
 
             // Nesneyi merkeze yerleştir
             transform.position = center;
@@ -65,7 +65,7 @@ namespace StickBlast
 
         public bool IsLinesOccupied()
         {
-            foreach (var line in lines)
+            foreach (var line in gridLines)
             {
                 if (!line.IsOccupied)
                     return false;
@@ -78,7 +78,7 @@ namespace StickBlast
         {
             IsOccupied = true;
             IsHovered = false;
-            
+
             Show();
         }
 
@@ -86,17 +86,17 @@ namespace StickBlast
         {
             if (IsOccupied)
             {
-                foreach (var line in lines)
+                foreach (var line in gridLines)
                 {
                     line.DeHover();
                     line.DeOccupied();
                 }
             }
-            
+
             IsOccupied = false;
             IsHovered = false;
-            
-            
+
+
             Hide();
         }
 
@@ -107,16 +107,18 @@ namespace StickBlast
             {
                 return false;
             }
-            
-            foreach (var line in lines)
+
+            // line lar ya occupied olmalı yada hovering olmalı
+            bool canHover = false;
+            foreach (var line in gridLines)
             {
-                if (!line.IsHovering)
-                {
-                    return false;
-                }
+                canHover = line.IsHovering || line.IsOccupied;
+
+                if (!canHover)
+                    break;
             }
 
-            return true;
+            return canHover;
         }
 
         public void Hover()
