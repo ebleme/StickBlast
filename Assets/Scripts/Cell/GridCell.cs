@@ -84,18 +84,17 @@ namespace StickBlast
 
         public void DeOccupie()
         {
-            if (IsOccupied)
-            {
-                foreach (var line in gridLines)
-                {
-                    line.DeHover();
-                    line.DeOccupied();
-                }
-            }
+            // if (IsOccupied)
+            // {
+            //     foreach (var line in gridLines)
+            //     {
+            //         line.DeHover();
+            //         line.DeOccupied();
+            //     }
+            // }
 
             IsOccupied = false;
             IsHovered = false;
-
 
             Hide();
         }
@@ -104,9 +103,7 @@ namespace StickBlast
         {
             // can be deleted
             if (IsOccupied)
-            {
                 return false;
-            }
 
             // line lar ya occupied olmalı yada hovering olmalı
             bool canHover = false;

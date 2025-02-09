@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Ebleme.Utility;
+using StickBlast;
 using UnityEngine;
 
 namespace Ebleme
@@ -51,6 +53,10 @@ namespace Ebleme
         [SerializeField]
         private float itemMoveAnimInterval = .5f;
 
+        [SerializeField]
+        private List<ItemSpawnProbability> itemSpawnProbabilities;
+
+        
         
     
         public Vector2Int BaseGridSize => baseGridSize;
@@ -72,6 +78,8 @@ namespace Ebleme
 
         public float ItemMoveAnimDuration => itemMoveAnimDuration;
         public float ItemMoveAnimInterval => itemMoveAnimInterval;
+
+        public List<ItemSpawnProbability> ItemSpawnProbabilities => itemSpawnProbabilities;
 
     }
 }

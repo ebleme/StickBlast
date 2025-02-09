@@ -35,7 +35,7 @@ namespace StickBlast
         private List<BaseLine> baseLinesHit;
 
         private bool canPlaced;
-        private bool canTouch = false;
+        private bool canTouch = true;
 
         public event Action<Item> OnItemDestroyed; 
 
@@ -44,6 +44,7 @@ namespace StickBlast
             startScale = GameConfigs.Instance.ItemStillScale;
             
             transform.localScale = startScale;
+            startPosition = transform.position;
 
             SetTilesList();
             DrawLines();
@@ -225,6 +226,9 @@ namespace StickBlast
 
         public void OnDrag(PointerEventData eventData)
         {
+            if (!canTouch)
+                return;
+            
             Vector2 target = Camera.main.ScreenToWorldPoint(eventData.position);
             target += offset;
 

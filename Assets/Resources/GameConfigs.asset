@@ -29,4 +29,15 @@ MonoBehaviour:
   itemStillColor: {r: 0, g: 1, b: 1, a: 1}
   itemSpawnCount: 3
   itemMoveAnimDuration: 0.25
-  itemMoveAnimInterval: 0.25
+  itemMoveAnimInterval: 0.22
+  itemSpawnProbabilities:
+  - ItemShapes: 4
+    Probability: 1
+  - ItemShapes: 0
+    Probability: 4
+  - ItemShapes: 2
+    Probability: 3
+  - ItemShapes: 1
+    Probability: 1
+  - ItemShapes: 3
+    Probability: 1
