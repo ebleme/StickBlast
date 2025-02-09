@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using Ebleme;
 using Ebleme.Utility;
 using StickBlast.Grid;
@@ -16,16 +17,27 @@ namespace StickBlast
         private GridManager gridManager;
 
         [SerializeField]
+        private GridCells gridCells;
+
+
+        [SerializeField]
         private BaseLine linePrefab;
 
         [SerializeField]
         private Transform linesContent;
 
         private List<BaseLine> lines;
+        public List<BaseLine> Lines => lines;
+
+
+        private HashSet<BaseLine> linesToRemove;
+        private HashSet<BaseTile> tilesToRemove;
 
         private void Start()
         {
             DrawLines();
+
+            gridCells.SetCells();
         }
 
         #region Line Draw
@@ -45,6 +57,8 @@ namespace StickBlast
                 if (up)
                     DrawLine((BaseTile)tile, (BaseTile)up, LineDirection.Vertical);
             }
+
+            linesContent.transform.localPosition = new Vector3(linesContent.transform.localPosition.x, linesContent.transform.localPosition.y, 0.1f);
         }
 
         private void DrawLine(BaseTile tileA, BaseTile tileB, LineDirection lineDirection)
@@ -52,7 +66,7 @@ namespace StickBlast
             if (tileA == null || tileB == null) return;
 
             Vector2 pointA = tileA.transform.position, pointB = tileB.transform.position;
-            
+
             float distance = Vector2.Distance(pointA, pointB);
 
             var line = Instantiate(linePrefab, linesContent);
@@ -69,23 +83,46 @@ namespace StickBlast
             line.Set(tileA.coordinate, lineDirection, tileA, tileB);
 
             line.ReColor(ColorTypes.Passive);
+
             lines.Add(line);
         }
 
         #endregion
 
+        public void CheckCells(Action onCompleted)
+        {
+            gridCells.CheckCells();
+
+            DOVirtual.DelayedCall(GameConfigs.Instance.GridFillDuration, () => { onCompleted?.Invoke(); });
+        }
+
+        private void HoverCells()
+        {
+            gridCells.HoverCells();
+        }
+
         #region Check grid fullness
 
         public void CheckGrid()
         {
+            linesToRemove = new HashSet<BaseLine>();
+            tilesToRemove = new HashSet<BaseTile>();
+
             CheckHorizontal();
+            CheckVertical();
+
+            foreach (var line in linesToRemove)
+                line.DeOccupied();
+
+            foreach (var tile in tilesToRemove)
+                tile.DeOccupied();
+
+            // clear cells
+            gridCells.CheckCells();
         }
 
         private void CheckHorizontal()
         {
-            HashSet<BaseLine> linesToRemove = new HashSet<BaseLine>();
-            HashSet<BaseTile> tilesToRemove = new HashSet<BaseTile>();
-
             for (int row = 0; row < GameConfigs.Instance.BaseGridSize.y; row++)
             {
                 if (IsFullRowHorizontal(row) && IsFullRowVertical(row)) // Row full both horizontal
@@ -119,7 +156,10 @@ namespace StickBlast
                         }
                 }
             }
+        }
 
+        private void CheckVertical()
+        {
             for (int column = 0; column < GameConfigs.Instance.BaseGridSize.x; column++)
             {
                 if (IsFullHorizontalColumn(column) && IsFullVerticalColumn(column)) // Row full both horizontal
@@ -153,25 +193,6 @@ namespace StickBlast
                         }
                 }
             }
-
-            foreach (var line in linesToRemove)
-                line.DeOccupied();
-
-            foreach (var tile in tilesToRemove)
-                tile.DeOccupied();
-        }
-
-        private bool IsFullRowHorizontal(int row)
-        {
-            // Yatay
-            for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x - 1; i++)
-            {
-                var line = GetLine(i, row, LineDirection.Horizontal);
-                if (line == null || !line.IsOccupied) return false;
-            }
-
-
-            return true;
         }
 
         private HashSet<BaseLine> GetHorizontalLinesByRow(int row)
@@ -290,6 +311,19 @@ namespace StickBlast
             return true;
         }
 
+        private bool IsFullRowHorizontal(int row)
+        {
+            // Yatay
+            for (int i = 0; i < GameConfigs.Instance.BaseGridSize.x - 1; i++)
+            {
+                var line = GetLine(i, row, LineDirection.Horizontal);
+                if (line == null || !line.IsOccupied) return false;
+            }
+
+
+            return true;
+        }
+
         private BaseLine GetLine(int x, int y, LineDirection direction)
         {
             return lines.SingleOrDefault(p => p.coordinate == new Vector2Int(x, y) && p.lineDirection == direction);
@@ -301,11 +335,11 @@ namespace StickBlast
         }
 
         #endregion
-        
-        
+
+
         public void PutItemToGrid(List<BaseLine> lines)
         {
-            if (lines== null)
+            if (lines == null)
                 return;
 
             foreach (var line in lines)
@@ -315,7 +349,7 @@ namespace StickBlast
                     var tile = (BaseTile)tileController;
                     tile.SetOccupied();
                 }
-                
+
                 line.SetOccupied();
             }
         }
@@ -325,35 +359,33 @@ namespace StickBlast
             if (hoverLines != null)
                 foreach (var line in hoverLines)
                 {
+                    line.Hover();
+
                     foreach (var tileController in line.ConnectedTiles)
                     {
                         var tile = (BaseTile)tileController;
                         tile.ReColor(ColorTypes.Hover);
                     }
-                    
-                    line.ReColor(ColorTypes.Hover);
                 }
 
-            foreach (var line in hoverLines)
-            {
-                line.ReColor(ColorTypes.Hover);
-            }
+            HoverCells();
         }
-        
+
         public void DeHover(List<BaseLine> hoverLines)
         {
             if (hoverLines != null)
                 foreach (var line in hoverLines)
                 {
                     line.DeHover();
-                    
+
                     foreach (var tileController in line.ConnectedTiles)
                     {
                         var tile = (BaseTile)tileController;
                         tile.DeHover();
                     }
-                    
                 }
+            
+            HoverCells();
         }
     }
 }

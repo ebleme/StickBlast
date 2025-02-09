@@ -69,7 +69,7 @@ namespace StickBlast
         public void DeOccupied()
         {
             IsOccupied = false;
-            
+
             ReColor(ColorTypes.Passive);
         }
     }

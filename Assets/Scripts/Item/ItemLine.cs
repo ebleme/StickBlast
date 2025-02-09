@@ -1,36 +1,27 @@
 // maebleme2
 
+using System;
+using System.Linq;
 using Ebleme;
 using StickBlast.Grid;
 using UnityEngine;
 
 namespace StickBlast
 {
-    public class BaseLine : MonoBehaviour
+    public class ItemLine:MonoBehaviour
     {
         public TileController[] ConnectedTiles { get; private set; }
-        private SpriteRenderer spriteRenderer;
-
-        public Vector2Int coordinate;
         public LineDirection lineDirection;
+        public Vector2Int coordinate;
 
-        public bool IsOccupied;
+        private SpriteRenderer spriteRenderer;
+        private Vector3 startPosition;
 
-        public bool Compare(params TileController[] connectedTiles)
+        public RaycastHit2D Hit()
         {
-            if (connectedTiles.Length != ConnectedTiles.Length) return false;
-
-            for (int i = 0; i < ConnectedTiles.Length; i++)
-            {
-                if (ConnectedTiles[i].coordinate != connectedTiles[i].coordinate)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return Physics2D.Raycast(transform.position, Vector3.forward, 30, GameConfigs.Instance.BaseLineLayer);
         }
-
+        
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -39,17 +30,17 @@ namespace StickBlast
 
         private void Start()
         {
-            
+            startPosition = transform.position;
         }
-
+        
         public void Set(Vector2Int coordinate, LineDirection direction, params TileController[] tiles)
         {
             ConnectedTiles = tiles;
             this.coordinate = coordinate;
 
             lineDirection = direction;
-        }
-
+        }    
+        
         public void ReColor(ColorTypes status)
         {
             switch (status)
@@ -70,29 +61,12 @@ namespace StickBlast
                     break;
             }
         }
-
-        public void SetOccupied()
+        
+        private void FixedUpdate()
         {
-            IsOccupied = true;
-
-            ReColor(ColorTypes.Active);
-        }
-
-        public void DeOccupied()
-        {
-            IsOccupied = false;
-
-            ReColor(ColorTypes.Passive);
-        }
-
-        public void DeHover()
-        {
-            ReColor(IsOccupied ? ColorTypes.Active: ColorTypes.Passive);
-        }
-
-        public void Hover()
-        {
-            ReColor(IsOccupied ? ColorTypes.Active: ColorTypes.Hover);
+            var hit = Hit();
+        
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 20, hit ? Color.yellow : Color.white);
         }
     }
 }

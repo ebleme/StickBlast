@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ebleme;
 using StickBlast.Grid;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,9 +14,6 @@ namespace StickBlast
     {
         [SerializeField]
         private ItemTypes itemType;
-        
-        [SerializeField]
-        private Vector3 movingScale = Vector3.one;
 
         [Header("Line")]
         [SerializeField]
@@ -23,12 +21,12 @@ namespace StickBlast
 
         [SerializeField]
         private Transform linesContent;
-        
+
         [SerializeField]
         private List<ItemLine> lines;
 
 
-        private Vector3 startScale;
+        private Vector2 startScale;
         private Vector3 startPosition;
         private Vector2 offset;
 
@@ -39,14 +37,17 @@ namespace StickBlast
 
         private void Start()
         {
-            startScale = transform.localScale;
+            startScale = GameConfigs.Instance.ItemStillScale;
+
+            transform.localScale = startScale;
             startPosition = transform.position;
 
             SetTilesList();
             DrawLines();
             Recolor(ColorTypes.ItemStill);
         }
-        
+
+        // Sets Item tiles
         private void SetTilesList()
         {
             foreach (Transform c in transform)
@@ -118,6 +119,8 @@ namespace StickBlast
                     DrawLine((ItemTile)tile, (ItemTile)up, LineDirection.Vertical);
                 }
             }
+
+            linesContent.transform.localPosition = new Vector3(linesContent.transform.localPosition.x, linesContent.transform.localPosition.y, 0.1f);
         }
 
         private void DrawLine(ItemTile tileA, ItemTile tileB, LineDirection lineDirection)
@@ -141,7 +144,6 @@ namespace StickBlast
 
             line.Set(tileA.coordinate, lineDirection, tileA, tileB);
 
-
             lines.Add(line);
         }
 
@@ -149,67 +151,26 @@ namespace StickBlast
 
         private void SetMovingScale()
         {
-            transform.localScale = movingScale;
+            transform.localScale = GameConfigs.Instance.ItemDragScale;
         }
 
-        private void SetStartScale()
-        {
-            transform.localScale = startScale;
-        }
-        
-        /// <summary>
-        /// Set all tiles position to their start position
-        /// </summary>
-        private void ReleaseAll()
-        {
-            SetStartScale();
-
-            transform.position = startPosition;
-
-            // foreach (var tile in tiles)
-            // {
-            //     tile.BackToStartPosition();
-            // }
-            //
-            // foreach (var line in lines)
-            // {
-            //     line.BackToStartPosition();
-            // }
-        }
-
-        // private void ReColorLines(ColorTypes lineStat)
-        // {
-        //     foreach (var line in lines)
-        //         line.ReColor(lineStat);
-        // }
-
-        public void AllowSetToGrid()
+        private void CanPlacable()
         {
             canPlaced = true;
 
+            // Önceki Line Hitleri ile yenilerini karşılaştırıyoruz ki öncekilerin hover ını kapatabilelim
             var newHitLines = GetBaseLineHits();
-            // var newHitTiles = GetBaseTileHits();
-
-            // if (newHitTiles != baseTilesHit || newHitLines != baseLinesHit)
-            // {
-            //     BaseGrid.Instance.DeHover(baseTilesHit, baseLinesHit);
-            // } 
-
             
-            // if (baseLinesHit != null && newHitLines != null && !newHitLines.SequenceEqual(baseLinesHit))
             if (newHitLines != baseLinesHit)
-            {
                 BaseGrid.Instance.DeHover(baseLinesHit);
-            }
 
             baseLinesHit = newHitLines;
-            // baseTilesHit = newHitTiles;
 
-            // if (baseLinesHit.Count == lines.Count && baseTilesHit.Count == tiles.Count)
             if (baseLinesHit.Count == lines.Count)
             {
                 foreach (var baseLine in baseLinesHit)
                 {
+                    // Eğer hit olan line zaten occupied ise yerleştirilemez
                     if (baseLine.IsOccupied)
                     {
                         canPlaced = false;
@@ -218,21 +179,12 @@ namespace StickBlast
                 }
             }
             else
-            {
                 canPlaced = false;
-            }
-
-            if (canPlaced)
-            {
-                BaseGrid.Instance.Hover(baseLinesHit);
-            }
-            // else
-            //     BaseGrid.Instance.DeHover(baseLinesHit);
         }
 
         private List<BaseLine> GetBaseLineHits()
         {
-            var hits = lines.Select(p => p.Hit()).ToList();
+            // var hits = lines.Select(p => p.Hit()).ToList();
 
             var list = new List<BaseLine>();
 
@@ -251,23 +203,6 @@ namespace StickBlast
             return list;
         }
 
-        private List<BaseTile> GetBaseTileHits()
-        {
-            var hits = tiles.Select(p => p.Hit()).ToList();
-
-            var list = new List<BaseTile>();
-            foreach (var hit in hits)
-            {
-                if (hit && hit.transform != null)
-                {
-                    list.Add(hit.transform.GetComponent<BaseTile>());
-                }
-            }
-
-            return list;
-        }
-
-
         #region Pointers
 
         public void OnPointerDown(PointerEventData eventData)
@@ -285,23 +220,37 @@ namespace StickBlast
 
             transform.position = target;
 
-            AllowSetToGrid();
+            CanPlacable();
+
+            if (canPlaced)
+                BaseGrid.Instance.Hover(baseLinesHit);
+            else
+                BaseGrid.Instance.DeHover(baseLinesHit);
+
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             if (canPlaced)
             {
+                // Item ı grid e işler
                 BaseGrid.Instance.PutItemToGrid(baseLinesHit);
 
-                Destroy(gameObject);                
-                BaseGrid.Instance.CheckGrid();
+                // Item ı yok eder
+                Destroy(gameObject);
+
+                // Dolu olan Grid Cell leri kontrol eder. Ardından tüm Grid i kontrol eder.
+                BaseGrid.Instance.CheckCells(() =>
+                {
+                    BaseGrid.Instance.CheckGrid();
+                });
             }
             else
             {
-                ReleaseAll();
+                transform.localScale = startScale;
+                transform.position = startPosition;
             }
-            
+
             baseLinesHit = null;
         }
 

@@ -18,9 +18,12 @@ MonoBehaviour:
   baseLineLayer:
     serializedVersion: 2
     m_Bits: 128
-  baseGridMaxOccupation: 2
   baseGridSize: {x: 6, y: 6}
-  linePassiveColor: {r: 0.6132076, g: 0.6132076, b: 0.6132076, a: 0.6156863}
+  itemStillScale: {x: 0.5, y: 0.5}
+  itemDragScale: {x: 1, y: 1}
+  gridFillDuration: 0.25
+  linePassiveColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
   hoverColor: {r: 0, g: 0.627451, b: 1, a: 1}
   activeColor: {r: 0, g: 1, b: 0, a: 1}
+  gridHoverColor: {r: 1, g: 0, b: 0, a: 1}
   itemStillColor: {r: 0, g: 1, b: 1, a: 1}

@@ -1,27 +1,26 @@
 // maebleme2
 
-using System;
-using System.Linq;
 using Ebleme;
 using StickBlast.Grid;
 using UnityEngine;
 
 namespace StickBlast
 {
-    public class ItemLine:MonoBehaviour
+    public class BaseLine : MonoBehaviour
     {
         public TileController[] ConnectedTiles { get; private set; }
-        public LineDirection lineDirection;
-        public Vector2Int coordinate;
-
         private SpriteRenderer spriteRenderer;
-        private Vector3 startPosition;
-        private bool IsOccupied;
+
+        public Vector2Int coordinate;
+        public LineDirection lineDirection;
+
+        public bool IsOccupied;
+        public bool IsHovering;
 
         // public bool Compare(params TileController[] connectedTiles)
         // {
         //     if (connectedTiles.Length != ConnectedTiles.Length) return false;
-        //     
+        //
         //     for (int i = 0; i < ConnectedTiles.Length; i++)
         //     {
         //         if (ConnectedTiles[i].coordinate != connectedTiles[i].coordinate)
@@ -32,12 +31,7 @@ namespace StickBlast
         //
         //     return true;
         // }
-        
-        public RaycastHit2D Hit()
-        {
-            return Physics2D.Raycast(transform.position, Vector3.forward, 30, GameConfigs.Instance.BaseLineLayer);
-        }
-        
+
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -46,12 +40,7 @@ namespace StickBlast
 
         private void Start()
         {
-            startPosition = transform.position;
-        }
-        
-        public void BackToStartPosition()
-        {
-            transform.position = startPosition;
+            
         }
 
         public void Set(Vector2Int coordinate, LineDirection direction, params TileController[] tiles)
@@ -60,9 +49,7 @@ namespace StickBlast
             this.coordinate = coordinate;
 
             lineDirection = direction;
-        }    
-        
-        
+        }
 
         public void ReColor(ColorTypes status)
         {
@@ -84,12 +71,35 @@ namespace StickBlast
                     break;
             }
         }
-        
-        private void FixedUpdate()
+
+        public void SetOccupied()
         {
-            var hit = Hit();
-        
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 20, hit ? Color.yellow : Color.white);
+            IsOccupied = true;
+
+            Debug.Log($"Base Line {coordinate.x},{coordinate.y} is Occupied");
+            
+            ReColor(ColorTypes.Active);
+        }
+
+        public void DeOccupied()
+        {
+            IsOccupied = false;
+
+            Debug.Log($"Base Line {coordinate.x},{coordinate.y} de Occupied");
+            
+            ReColor(ColorTypes.Passive);
+        }
+
+        public void DeHover()
+        {
+            IsHovering = false;
+            ReColor(IsOccupied ? ColorTypes.Active: ColorTypes.Passive);
+        }
+
+        public void Hover()
+        {
+            IsHovering = true;
+            ReColor(IsOccupied ? ColorTypes.Active: ColorTypes.Hover);
         }
     }
 }
