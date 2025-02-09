@@ -25,7 +25,8 @@ namespace StickBlast
         [SerializeField]
         private List<ItemLine> lines;
 
-
+        public ItemTypes ItemType => itemType;
+        
         private Vector2 startScale;
         private Vector3 startPosition;
         private Vector2 offset;
@@ -34,17 +35,25 @@ namespace StickBlast
         private List<BaseLine> baseLinesHit;
 
         private bool canPlaced;
+        private bool canTouch = false;
+
+        public event Action<Item> OnItemDestroyed; 
 
         private void Start()
         {
             startScale = GameConfigs.Instance.ItemStillScale;
-
+            
             transform.localScale = startScale;
-            startPosition = transform.position;
 
             SetTilesList();
             DrawLines();
             Recolor(ColorTypes.ItemStill);
+        }
+
+        public void SetCanTouch()
+        {
+            canTouch = true;
+            startPosition = transform.position;
         }
 
         // Sets Item tiles
@@ -207,6 +216,9 @@ namespace StickBlast
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            if (!canTouch)
+                return;
+            
             var target = Camera.main.ScreenToWorldPoint(eventData.position);
             offset = transform.position - target;
 
@@ -237,6 +249,7 @@ namespace StickBlast
                 BaseGrid.Instance.PutItemToGrid(baseLinesHit);
 
                 // Item ı yok eder
+                OnItemDestroyed?.Invoke(this);
                 Destroy(gameObject);
 
                 // Dolu olan Grid Cell leri kontrol eder. Ardından tüm Grid i kontrol eder.

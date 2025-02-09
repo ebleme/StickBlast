@@ -27,3 +27,6 @@ MonoBehaviour:
   activeColor: {r: 0, g: 1, b: 0, a: 1}
   gridHoverColor: {r: 1, g: 0, b: 0, a: 1}
   itemStillColor: {r: 0, g: 1, b: 1, a: 1}
+  itemSpawnCount: 3
+  itemMoveAnimDuration: 0.25
+  itemMoveAnimInterval: 0.25

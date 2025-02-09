@@ -41,6 +41,17 @@ namespace Ebleme
         [Header("Item")]
         [SerializeField]
         private Color itemStillColor;
+
+        [SerializeField]
+        private int itemSpawnCount = 3;
+
+        [SerializeField]
+        private float itemMoveAnimDuration = .5f;
+
+        [SerializeField]
+        private float itemMoveAnimInterval = .5f;
+
+        
     
         public Vector2Int BaseGridSize => baseGridSize;
         public Vector2 ItemStillScale => itemStillScale;
@@ -56,6 +67,11 @@ namespace Ebleme
         public LayerMask BaseLineLayer => baseLineLayer;
 
         public float GridFillDuration => gridFillDuration;
+
+        public int ItemSpawnCount => itemSpawnCount;
+
+        public float ItemMoveAnimDuration => itemMoveAnimDuration;
+        public float ItemMoveAnimInterval => itemMoveAnimInterval;
 
     }
 }
