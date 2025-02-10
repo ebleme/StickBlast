@@ -73,6 +73,7 @@ namespace StickBlast
                 else
                 {
                     cell.DeOccupie();
+                    cell.DeHover();
                 }
             }
         }

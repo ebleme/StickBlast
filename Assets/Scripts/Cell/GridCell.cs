@@ -68,7 +68,9 @@ namespace StickBlast
             foreach (var line in gridLines)
             {
                 if (!line.IsOccupied)
+                {
                     return false;
+                }
             }
 
             return true;

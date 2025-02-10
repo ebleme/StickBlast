@@ -108,7 +108,10 @@ namespace StickBlast
             CheckVertical();
 
             foreach (var line in linesToRemove)
+            {
                 line.DeOccupied();
+                line.DeHover();
+            }
 
             foreach (var tile in tilesToRemove)
                 tile.DeOccupied();
