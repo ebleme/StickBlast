@@ -31,10 +31,10 @@ MonoBehaviour:
   itemMoveAnimDuration: 0.25
   itemMoveAnimInterval: 0.22
   itemSpawnProbabilities:
-  - ItemShapes: 4
-    Probability: 1
   - ItemShapes: 0
-    Probability: 4
+    Probability: 3
+  - ItemShapes: 4
+    Probability: 2
   - ItemShapes: 2
     Probability: 3
   - ItemShapes: 1
